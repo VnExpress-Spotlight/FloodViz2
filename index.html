@@ -62,7 +62,7 @@
         .leaflet-tooltip-top:before { border-top-color: rgba(0,0,0,0.9); }
 
         /* --- D3 Chart Styling --- */
-        #chart-container { position: relative; height: 60px; width: 100%; margin-bottom: 0px; }
+        #chart-container { position: relative; height: 100px; width: 100%; margin-bottom: 0px; }
         .chart-area { fill: url(#chartGradient); opacity: 0.6; stroke: #60a5fa; stroke-width: 1.5px; }
         .chart-selection-rect { fill: #3b82f6; opacity: 0.2; }
         .chart-cursor { stroke: #fbbf24; stroke-width: 2px; stroke-dasharray: 4 2; opacity: 0.8; }
@@ -102,18 +102,7 @@
             white-space: nowrap;
         }
         .chart-tooltip.visible { opacity: 1; }
-        #pinned-panel {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            width: 22rem; /* Increased from 18rem */
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            z-index: 40; /* Keep below the story scroll (z=50) */
-            pointer-events: auto;
-            align-items: center;
-        }
+
         #story-label {
             text-shadow: 0 1px 4px rgba(0,0,0,0.7);
             font-size: 1.1rem;
@@ -121,10 +110,6 @@
             background-color: rgba(0,0,0,0.5);
             border-radius: 8px;
         }
-        #pinned-panel > div { pointer-events: auto; }
-        #pinned-panel-header,
-        #mobile-pinned-toggle,
-        #mobile-pinned-backdrop { display: none; }
         .current-time-label { font-weight: 800; }
 
         /* SCROLLYTELLING STYLES */
@@ -133,7 +118,7 @@
             top: 0;
             left: 0;
             height: 100vh;
-            width: min(560px, 100%); /* Increased from 480px */
+            width: 100%;
             z-index: 50;
             overflow-y: auto;
             padding-bottom: 50vh; /* Allow scrolling past last element */
@@ -157,6 +142,13 @@
             opacity: 1;
             transform: scale(1);
         }
+        .step-inner-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem; /* 24px */
+            width: 100%;
+        }
         .step-content {
             pointer-events: auto; /* Enable interaction with text box */
             background: rgba(20, 20, 20, 0.9);
@@ -168,14 +160,61 @@
             width: 100%;
             max-width: 560px; /* Increased from 480px */
         }
+        .step-pinned-charts {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem; /* 16px */
+            width: 100%;
+            max-width: 520px; /* Slightly narrower than text */
+            pointer-events: auto;
+        }
+        #desktop-pinned-charts {
+            display: none;
+            position: fixed;
+            top: 50%;
+            right: 32px;
+            transform: translateY(-50%);
+            width: 320px;
+            max-width: 32vw;
+            z-index: 60;
+        }
+        @media (min-width: 1024px) {
+            #story-container { padding-right: 360px; }
+            .step-inner-wrapper {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: flex-start;
+                max-width: 1200px;
+                margin-left: clamp(12px, 2vw, 40px);
+                margin-right: auto;
+            }
+            .step-content {
+                max-width: none;
+                width: 60%;
+            }
+            .step-pinned-charts {
+                width: 40%;
+            }
+            #desktop-pinned-charts {
+                display: flex;
+            }
+            .step-pinned-charts:not(#desktop-pinned-charts) {
+                display: none;
+            }
+        }
+        @media (max-width: 640px) {
+            .step-inner-wrapper { gap: 0.75rem; align-items: stretch; }
+            .step-content { width: 100%; }
+            .step-pinned-charts { margin-top: 0; }
+        }
         
         .step-content p {
             /* UPDATED: Increased font size for readability */
             font-size: 1.1rem;
         }
 
-        /* UPDATED: Hide the bottom timeline bar entirely */
-        .timeline-wrapper { display: none; }
+        /* Timeline bar visible again */
+        .timeline-wrapper { display: flex; height: auto; min-height: 0; align-items: flex-end; }
         .timeline-wrapper.show-mobile-pins { display: flex; height: auto; min-height: 0; align-items: flex-end; padding-top: 1rem; }
         #mobile-pinned-preview .mobile-pin-card {
             background: rgba(20, 20, 20, 0.9);
@@ -197,12 +236,9 @@
 
         @media (max-width: 640px) {
             #story-container {
-                width: 100%;
                 height: 100vh; /* Takes full screen on mobile */
                 bottom: auto;
             }
-            #pinned-panel { display: none; }
-            #chart-container, #timeline-chart, .timeline-chart-label, .range-container, #timeline-ticks { display: none; }
             .timeline-wrapper { height: 120px; padding-bottom: 0.75rem; padding-top: 0.25rem; }
             #mobile-pinned-preview { max-height: 45vh; }
             .step-content h3 {
@@ -223,65 +259,86 @@
         <div style="height: 30vh;"></div>
 
         <div class="step" data-step="1">
-            <div class="step-content">
-                <h3 class="text-2xl font-bold text-blue-500 mb-4">“Lá chắn” cuối cùng</h3>
-                <p class="leading-relaxed text-gray-200">
-                    Hồ Sông Ba Hạ có dung tích phòng lũ cho hạ du là 125 triệu m3, chiếm 1/3 tổng dung tích (350 triệu m3), thuộc hệ thống điều tiết lũ với các hồ thượng nguồn gồm Kanak - An Khê; Ayun Hạ và Krông H'Năng.
-                </p>
+            <div class="step-inner-wrapper">
+                <div class="step-content">
+                    <h3 class="text-2xl font-bold text-blue-500 mb-4">“Lá chắn” cuối cùng</h3>
+                    <p class="leading-relaxed text-gray-200">
+                        Hồ Sông Ba Hạ là chốt chặn cuối cùng của hệ thống bậc thang sông Ba. Dung tích phòng lũ đạt 125 triệu m3, chiếm 1/3 tổng dung tích hồ chứa.
+                    </p>
+                </div>
+                <div class="step-pinned-charts"></div>
             </div>
         </div>
 
         <div class="step" data-step="2">
-            <div class="step-content">
-                <h3 class="text-2xl font-bold text-blue-500 mb-4">Xả nước đón lũ</h3>
-                <p class="leading-relaxed text-gray-200">
-                    20h ngày 14/11 - 28 tiếng trước đợt mưa lớn, hồ nhận được lệnh vận hành lũ từ UBND tỉnh Đăk Lăk. Trước đó, hồ đã vận hành xả nước đón lũ với lương lượng xả lớn hơn lưu lượng đến.
-                </p>
+            <div class="step-inner-wrapper">
+                <div class="step-content">
+                    <h3 class="text-2xl font-bold text-blue-500 mb-4">Xả nước đón lũ</h3>
+                    <p class="leading-relaxed text-gray-200">
+                        28 tiếng trước đợt mưa lớn (20h ngày 14/11), hồ chủ động xả nước hạ thấp mực hồ (lượng xả > về) theo lệnh vận hành của UBND tỉnh Đăk Lăk.
+                    </p>
+                </div>
+                <div class="step-pinned-charts"></div>
             </div>
         </div>
         
         <div class="step" data-step="3">
-            <div class="step-content">
-                <h3 class="text-2xl font-bold text-blue-500 mb-4">Vận hành duy trì</h3>
-                <p class="leading-relaxed text-gray-200">
-                    10h ngày 16/11, khi mực nước tại hồ giảm xuống mực nước đón lũ lớn nhất theo quy định sau ngày 15/11 (103 m), hồ chuyển sang vận hành duy trì với lưu lượng xả xấp xỉ lượng nước về hồ.
-                </p>
+            <div class="step-inner-wrapper">
+                <div class="step-content">
+                    <h3 class="text-2xl font-bold text-blue-500 mb-4">Vận hành duy trì</h3>
+                    <p class="leading-relaxed text-gray-200">
+                        10h ngày 16/11, khi mực nước tại hồ giảm xuống mực nước đón lũ lớn nhất theo quy định sau ngày 15/11 (103 m), hồ chuyển sang vận hành duy trì với lưu lượng xả xấp xỉ lượng nước về hồ.
+                    </p>
+                </div>
+                <div class="step-pinned-charts"></div>
             </div>
         </div>
 
         <div class="step" data-step="4">
-            <div class="step-content">
-                <h3 class="text-2xl font-bold text-blue-500 mb-4">“Cắt lũ” lần đầu</h3>
-                <p class="leading-relaxed text-gray-200">
-                    19h ngày 18/11, “tâm mưa” bắt đầu dịch chuyển dần về Đăk Lăk. Mực nước tại trạm Củng Sơn lên báo động 2. Theo quy định, hồ chuyển sang vận hành giảm lũ với lưu lượng xả nhỏ hơn lưu lượng đến, kéo dài liên tục 12 giờ.
-                </p>
+            <div class="step-inner-wrapper">
+                <div class="step-content">
+                    <h3 class="text-2xl font-bold text-blue-500 mb-4">“Cắt lũ” lần đầu</h3>
+                    <p class="leading-relaxed text-gray-200">
+                        19h ngày 18/11, “tâm mưa” bắt đầu dịch chuyển dần về Đăk Lăk. Mực nước tại trạm Củng Sơn lên báo động 3. Theo quy định, hồ chuyển sang vận hành giảm lũ (lượng xả < đến), kéo dài liên tục 12 giờ.
+                    </p>
+                </div>
+                <div class="step-pinned-charts"></div>
             </div>
         </div>
 
         <div class="step" data-step="5">
-            <div class="step-content">
-                <h3 class="text-2xl font-bold text-blue-500 mb-4">Xả lũ lịch sử</h3>
-                <p class="leading-relaxed text-gray-200">
-                    Đến 9h ngày 19/11, hồ đầy đến mực nước dâng bình thường, không thể tiếp tục cắt lũ cho hạ du. Lúc này, lưu lượng nước về hồ liên tục tăng, gần như được xả trực tiếp xuống hạ du. Chỉ trong 8 tiếng, lượng nước xả tăng 5.900 m3/s, đạt đỉnh ở mức 16.100 m3/s vào 17h cùng ngày - vượt mức lịch sử năm 2009 là 14.500 m3/s.
-                </p>
+            <div class="step-inner-wrapper">
+                <div class="step-content">
+                    <h3 class="text-2xl font-bold text-blue-500 mb-4">Xả lũ lịch sử</h3>
+                    <p class="leading-relaxed text-gray-200">
+                        Hồ đầy lúc 9h ngày 19/11 khiến việc cắt lũ chấm dứt. Lưu lượng xả tăng dần và lập đỉnh 16.100 m3/s vào 17h, phá vỡ kỷ lục năm 2009. Trước đó một giờ, mực nước tại trạm Củng Sơn ở hạ nguồn sông Ba vượt lịch sử 1993.
+                    </p>
+                </div>
+                <div class="step-pinned-charts"></div>
             </div>
         </div>
 
         <div class="step" data-step="6">
-            <div class="step-content">
-                <h3 class="text-2xl font-bold text-blue-500 mb-4">"Cắt lũ" lần hai</h3>
-                <p class="leading-relaxed text-gray-200">
-                    Khi nhận lệnh của Chủ tịch UBND tỉnh chiều cùng ngày, hồ giảm xả và sử dụng dung tích bảo vệ công trình để “cắt lũ” lần hai cho hạ du từ 20h ngày 19/11, duy trì đến 19h ngày 20/11 thì chuyển sang vận hành duy trì (lưu lượng đến = xả).
-                </p>
+            <div class="step-inner-wrapper">
+                <div class="step-content">
+                    <h3 class="text-2xl font-bold text-blue-500 mb-4">"Cắt lũ" lần hai</h3>
+                    <p class="leading-relaxed text-gray-200">
+                        Khi nhận lệnh của Chủ tịch UBND tỉnh chiều cùng ngày, hồ giảm xả và sử dụng dung tích bảo vệ công trình để “cắt lũ” lần hai cho hạ du từ 20h ngày 19/11, duy trì đến 19h ngày 20/11 thì chuyển sang vận hành duy trì (lượng đến = xả).
+                    </p>
+                </div>
+                <div class="step-pinned-charts"></div>
             </div>
         </div>
 
         <div class="step" data-step="7">
-            <div class="step-content">
-                <h3 class="text-2xl font-bold text-blue-500 mb-4">Lũ lịch sử</h3>
-                <p class="leading-relaxed text-gray-200">
-                    1 giờ ngày 20/11, mực nước tại trạm Củng Sơn ở hạ nguồn sông Ba đạt đỉnh 40,99 m, vượt lịch sử 1993 là 1,09 m. Hai giờ sau, mực nước tại trạm Phú Lâm cũng xác lập kỷ lục mới trong 32 năm với mực nước 5,4 m, cao hơn lũ lịch sử 1993 là 0,19 m. Toàn tỉnh Phú Yên cũ - hạ lưu sông Ba - chìm trong biển nước.
-                </p>
+            <div class="step-inner-wrapper">
+                <div class="step-content">
+                    <h3 class="text-2xl font-bold text-blue-500 mb-4">Lũ lịch sử</h3>
+                    <p class="leading-relaxed text-gray-200">
+                        1 giờ ngày 20/11, mực nước tại trạm Củng Sơn ở hạ nguồn sông Ba đạt đỉnh 40,99 m, vượt lịch sử 1993 là 1,09 m. Hai giờ sau, mực nước tại trạm Phú Lâm cũng xác lập kỷ lục mới trong 32 năm với mực nước 5,4 m, cao hơn lũ lịch sử 1993 là 0,19 m. Toàn tỉnh Phú Yên cũ - hạ lưu sông Ba - chìm trong biển nước.
+                    </p>
+                </div>
+                <div class="step-pinned-charts"></div>
             </div>
         </div>
 
@@ -289,19 +346,47 @@
         <div style="height: 50vh;"></div>
     </div>
 
-    <div class="hidden">
+    <div id="desktop-pinned-charts" class="step-pinned-charts"></div>
+
+    <!-- The #pinned-panel is no longer needed for desktop view -->
+    <div class="hidden" id="pinned-panel">
         <button id="layer-toggle-btn"></button>
-        <button id="legend-toggle-btn"></button>
+        <button id="legend-toggle-btn-hidden"></button>
         <button id="filter-toggle-btn"></button>
         <div id="filter-panel"><div id="filter-province-list"></div><div id="filter-river-list"></div></div>
         <div id="layer-panel"></div>
+        <div id="pinned-list"></div>
     </div>
 
-    <div id="legend-panel" class="glass-panel px-4 py-3 rounded-lg shadow-2xl w-64 absolute top-4 right-4 z-40 hidden">
-        </div>
+    <!-- Floating Legend Toggle -->
+    <div class="fixed top-4 right-4 z-[70] flex gap-2 pointer-events-auto">
+        <button id="legend-toggle-btn" class="glass-panel px-3 py-2 rounded-lg border border-white/15 text-xs font-semibold uppercase tracking-wide text-white bg-black/60 hover:bg-white/10 transition">
+            Chú giải
+        </button>
+    </div>
 
-    <div id="pinned-panel">
-        <div id="pinned-list" class="flex flex-col gap-3 pointer-events-auto"></div>
+    <div id="legend-panel" class="glass-panel px-4 py-3 rounded-lg shadow-2xl w-64 absolute top-14 right-4 z-[80]">
+        <!-- Rainfall Legend -->
+        <div class="flex justify-between items-start mb-2">
+            <div class="text-sm font-semibold text-white">Chú giải</div>
+            <button id="legend-close-btn" class="text-gray-300 hover:text-white text-sm">✕</button>
+        </div>
+        <div id="legend-rain" class="mb-3">
+            <div class="flex items-center justify-between mb-2">
+                <div class="text-[10px] uppercase tracking-wider text-gray-400">Mưa</div>
+                <span id="legend-mode-label" class="text-[11px] text-emerald-300 font-semibold">Theo giờ</span>
+            </div>
+            <div class="relative h-2 rounded-full mb-1" id="legend-gradient">
+                <div id="legend-hover-marker" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-white ring-2 ring-black opacity-0 transition-opacity"></div>
+            </div>
+            <div class="flex justify-between text-[11px] text-gray-400">
+                <span id="legend-min-val">Thấp</span><span id="legend-max-val">Cao</span>
+            </div>
+        </div>
+        <!-- Lake Legend -->
+        <div id="legend-lakes" class="mt-3"></div>
+        <!-- Station Legend -->
+        <div id="legend-stations" class="mt-3"></div>
     </div>
 
     <div class="absolute bottom-0 left-0 right-0 h-[150px] bg-gradient-to-t from-black via-[#1a1a1a] to-transparent z-30 flex flex-col justify-end pb-4 px-5 pointer-events-none timeline-wrapper">
@@ -316,13 +401,22 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-[10px] text-gray-400 tracking-wider font-normal timeline-chart-label">Lượng mưa trung bình</div>
+                <div class="flex items-center gap-3">
+                    <div class="text-[10px] text-gray-300 tracking-wider font-semibold timeline-chart-label">Lượng đến / xả Hồ Sông Ba Hạ</div>
+                    <div class="flex items-center gap-1 text-[10px]">
+                        <span id="lake-ratio-label" class="font-semibold text-white">—</span>
+                    </div>
+                </div>
             </div>
 
             <div id="mobile-pinned-preview"></div>
 
             <div id="chart-container">
                 <svg id="timeline-chart" width="100%" height="100%"></svg>
+                <div id="chart-legend" class="absolute top-1 right-2 flex items-center gap-2 text-[10px] text-gray-200 bg-black/60 px-2 py-1 rounded-full border border-white/10">
+                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>Đến</span>
+                    <span class="flex items-center gap-1"><span class="inline-block w-2 h-2 rounded-full bg-red-500"></span>Xả</span>
+                </div>
             </div>
 
             <div class="range-container">
@@ -361,6 +455,13 @@
             end: new Date("2025-11-20T20:00:00")
         };
         const COLORS = { blue: '#0ea5e9', green: '#22c55e', yellow: '#fbbf24', red: '#ef4444', purple: '#a855f7' };
+        // Edit these bounds to tweak story zooms; values are [minLon, minLat, maxLon, maxLat]
+        const STORY_BOUNDS = {
+            baBasin: { extentLonLat: [107, 11.6, 109.9, 15] },
+            songBaHaTight: { extentLonLat: [108.85, 12.99, 109.05, 13.08] },
+            songBaHaArea: { extentLonLat: [108.7, 12.7, 109.35, 13.55] },
+            wholeRegion: { extentLonLat: [106.6, 10.6, 110.6, 16.5] }
+        };
         
         const MARKER_MAX_RATIO = 150;
         const MARKER_MAX_WARNING = 4;
@@ -416,14 +517,19 @@
         let timelinePlayTimer = null;
         let pinnedCharts = [];
         let geoLayer, riverLayer, stationLayer, lakeLayer;
-        let chartXScale, chartYScale;
+        let chartXScale, chartYScale, timelineBaseIndex = 0;
         const lakeRatioLogs = new Set();
         let popupCursorRegistry = [];
         let currentStoryStep = null;
+        let sliderAnimationFrame = null;
+        const stepRanges = {};
+        let scrollSyncPending = false;
+        const stepScrollAnchors = {};
         const registerPopupCursor = (entry) => {
             popupCursorRegistry.push(entry);
             return () => { popupCursorRegistry = popupCursorRegistry.filter(e => e !== entry); };
         };
+        const hideCungSonLabel = () => { cungSonLabelOverlay.setPosition(undefined); cungSonLabelElement.classList.add('hidden'); };
         function updatePopupCursorLines() {
             const cursorIdx = Math.max(0, state.endIndex - state.visibleStartIndex);
             popupCursorRegistry = popupCursorRegistry.filter(entry => {
@@ -458,13 +564,23 @@
             chkRivers: document.getElementById('toggle-rivers'),
             layerPanel: document.getElementById('layer-panel'),
             layerToggleBtn: document.getElementById('layer-toggle-btn'),
-            legendToggleBtn: document.getElementById('legend-toggle-btn'),
+            legendToggleBtn: (() => {
+                const btns = document.querySelectorAll('#legend-toggle-btn');
+                return btns.length ? btns[btns.length - 1] : null;
+            })(),
             legendPanel: document.getElementById('legend-panel'),
+            legendRain: document.getElementById('legend-rain'),
+            legendLakes: document.getElementById('legend-lakes'),
+            legendStations: document.getElementById('legend-stations'),
+            legendModeLabel: document.getElementById('legend-mode-label'),
+            legendGradient: document.getElementById('legend-gradient'),
+            legendMinVal: document.getElementById('legend-min-val'),
+            legendMaxVal: document.getElementById('legend-max-val'),
+            legendCloseBtn: document.getElementById('legend-close-btn'),
             filterToggleBtn: document.getElementById('filter-toggle-btn'),
             filterPanel: document.getElementById('filter-panel'),
             filterProvinceList: document.getElementById('filter-province-list'),
             filterRiverList: document.getElementById('filter-river-list'),
-            pinnedList: document.getElementById('pinned-list'),
             mobilePinnedPreview: document.getElementById('mobile-pinned-preview'),
             opacityRain: document.getElementById('opacity-rain'),
             opacityHydro: document.getElementById('opacity-hydro'),
@@ -531,10 +647,22 @@
         const storyLabelOverlay = new ol.Overlay({
             element: storyLabelElement,
             positioning: 'bottom-center',
-            offset: [0, -20], // Position above the marker
+            offset: [0, -10], // Position closer above the marker
             stopEvent: false
         });
         map.addOverlay(storyLabelOverlay);
+
+        const cungSonLabelElement = document.createElement('div');
+        cungSonLabelElement.id = 'cungson-label';
+        cungSonLabelElement.className = 'text-white font-bold pointer-events-none hidden';
+        document.body.appendChild(cungSonLabelElement);
+        const cungSonLabelOverlay = new ol.Overlay({
+            element: cungSonLabelElement,
+            positioning: 'bottom-center',
+            offset: [0, -10],
+            stopEvent: false
+        });
+        map.addOverlay(cungSonLabelOverlay);
 
         function showHoverTooltip(html, coordinate) {
             hoverTooltipElement.innerHTML = html;
@@ -734,6 +862,52 @@
             const ratioBoost = 1 + Math.min(0.8, ratio / 150);
             return capScale * ratioBoost;
         }
+        const styleLabelChip = (el, color = '#0ea5e9') => {
+            el.style.color = '#fff';
+            el.style.background = applyOpacity(color, 0.22);
+            el.style.border = `1px solid ${applyOpacity(color, 0.5)}`;
+            el.style.padding = '4px 10px';
+            el.style.borderRadius = '9999px';
+            el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.45)';
+        };
+        const renderLegend = () => {
+            if (DOM.legendGradient) {
+                DOM.legendGradient.style.background = 'linear-gradient(90deg, #0ea5e9, #22c55e, #f59e0b, #ef4444)';
+            }
+            if (DOM.legendModeLabel) DOM.legendModeLabel.textContent = state.mode === 'daily' ? 'Theo giờ' : 'Tích lũy';
+            if (DOM.legendMinVal) DOM.legendMinVal.textContent = 'Thấp';
+            if (DOM.legendMaxVal) DOM.legendMaxVal.textContent = 'Cao';
+            if (DOM.legendLakes) {
+                const ranges = [
+                    { label: ">105%", color: COLORS.purple },
+                    { label: "100-105%", color: COLORS.red },
+                    { label: "95-100%", color: COLORS.yellow },
+                    { label: "90-95%", color: COLORS.green },
+                    { label: "<90%", color: COLORS.blue }
+                ];
+                const triangle = (color) => `<span class="inline-flex w-0 h-0 border-l-[6px] border-r-[6px] border-l-transparent border-r-transparent border-t-[10px]" style="border-top-color:${color}"></span>`;
+                DOM.legendLakes.innerHTML = `
+                    <div class="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Dung tích hồ chứa</div>
+                    <div class="flex flex-col gap-1 text-xs">
+                        ${ranges.map(r => `<div class="flex items-center gap-2">${triangle(r.color)}<span>${r.label}</span></div>`).join('')}
+                    </div>`;
+            }
+            if (DOM.legendStations) DOM.legendStations.innerHTML = `
+                <div class="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Trạm mực nước sông</div>
+                <div class="flex flex-col gap-1 text-xs">
+                    <div class="flex items-center gap-2"><span class="inline-flex w-3 h-3 rounded-full" style="background:${COLORS.purple}"></span><span>Trên lũ lịch sử</span></div>
+                    <div class="flex items-center gap-2"><span class="inline-flex w-3 h-3 rounded-full" style="background:${COLORS.red}"></span><span>Trên BĐ3</span></div>
+                    <div class="flex items-center gap-2"><span class="inline-flex w-3 h-3 rounded-full" style="background:${COLORS.yellow}"></span><span>Trên BĐ2</span></div>
+                    <div class="flex items-center gap-2"><span class="inline-flex w-3 h-3 rounded-full" style="background:${COLORS.green}"></span><span>Trên BĐ1</span></div>
+                    <div class="flex items-center gap-2"><span class="inline-flex w-3 h-3 rounded-full" style="background:${COLORS.blue}"></span><span>Dưới BĐ1</span></div>
+                </div>`;
+        };
+        const stopSliderAnimation = () => {
+            if (sliderAnimationFrame !== null) {
+                cancelAnimationFrame(sliderAnimationFrame);
+                sliderAnimationFrame = null;
+            }
+        };
         const requestViewUpdate = () => {
             if (pendingUpdate !== null) return;
             pendingUpdate = requestAnimationFrame(() => { pendingUpdate = null; updateView(); });
@@ -936,6 +1110,7 @@
             state.startIndex = state.visibleStartIndex; state.endIndex = state.visibleStartIndex;
             
             generateTicks();
+            renderLegend();
             updateView();
             // Start Scrollytelling Observation once data is ready
             initScrollyTelling();
@@ -1118,17 +1293,20 @@
             const startDateStr = formatDisplayDate(state.dates[state.startIndex]);
             const isAccumulated = state.mode === 'accumulated';
             const labelText = isAccumulated
-                ? `Thời gian: ${startDateStr} - ${endDateStr}`
-                : `Thời gian: ${endDateStr}`;
-            displayDateEl.innerText = labelText;
+                ? `${startDateStr} - ${endDateStr}`
+                : `${endDateStr}`;
+            displayDateEl.innerText = '';
             
             recomputeRainThresholds();
             if (geoLayer?.getSource()) geoLayer.getSource().changed();
             if (riverLayer?.getSource()) riverLayer.getSource().changed();
             if (stationLayer?.getSource()) stationLayer.getSource().changed();
             if (lakeLayer?.getSource()) lakeLayer.getSource().changed();
+            if (state.timelineStats.length) initTimelineChart();
             updateChartCursor();
             renderPinnedCharts();
+            refreshStoryLabels();
+            renderLegend();
         }
 
         function recomputeRainThresholds() {
@@ -1179,18 +1357,71 @@
             const svg = d3.select("#timeline-chart");
             svg.selectAll("*").remove();
             const width = container.clientWidth, height = container.clientHeight;
+
+            const labelEl = document.querySelector('.timeline-chart-label');
+            timelineBaseIndex = state.visibleStartIndex;
+
+            // Try to find Hồ Sông Ba Hạ station id (prefer pinned if available)
+            const pinnedMatch = pinnedCharts.find(p => {
+                const meta = state.stationMeta[p.id];
+                return meta && normalizeSimple(meta.name || '').includes('song ba ha');
+            });
+            const songBaHa = pinnedMatch
+                ? state.stationMeta[pinnedMatch.id]
+                : Object.values(state.stationMeta).find(m => normalizeSimple(m.name || '').includes('song ba ha'));
+            const fallbackSid = '7D5B7DB0-D64A-4A36-BD4E-54A95CA62E9D';
+            const sid = songBaHa?.station_id || fallbackSid;
             
             const defs = svg.append("defs");
             const gradient = defs.append("linearGradient").attr("id", "chartGradient").attr("x1", "0").attr("y1", "0").attr("x2", "0").attr("y2", "1");
             gradient.append("stop").attr("offset", "0%").attr("stop-color", "#60a5fa").attr("stop-opacity", 0.8);
             gradient.append("stop").attr("offset", "100%").attr("stop-color", "#60a5fa").attr("stop-opacity", 0);
 
-            const data = state.timelineStats.slice(state.visibleStartIndex);
-            chartXScale = d3.scaleLinear().domain([0, Math.max(data.length - 1, 0)]).range([0, width]);
-            chartYScale = d3.scaleLinear().domain([0, (d3.max(data, d => d.avg) || 10) * 1.2]).range([height, 5]);
+            let mode = 'flow';
+            const data = state.dates.slice(state.visibleStartIndex).map((_, idx) => {
+                const rec = state.waterLevelMap[state.visibleStartIndex + idx]?.[sid];
+                return {
+                    qIn: Number.isFinite(rec?.qIn) ? rec.qIn : null,
+                    qOut: Number.isFinite(rec?.qOut) ? rec.qOut : null
+                };
+            });
 
-            const area = d3.area().curve(d3.curveMonotoneX).x((d, i) => chartXScale(i)).y0(height).y1(d => chartYScale(d.avg));
-            svg.append("path").datum(data).attr("class", "chart-area").attr("d", area);
+            const yVals = data.flatMap(d => [d.qIn, d.qOut]).filter(Number.isFinite);
+            const latestRecord = state.waterLevelMap[state.endIndex]?.[sid] || {};
+
+            // Fallback to rain avg chart if no flow data at all
+            if (!yVals.length) {
+                mode = 'rain';
+                const rainData = state.timelineStats.slice(state.visibleStartIndex);
+                chartXScale = d3.scaleLinear().domain([0, Math.max(rainData.length - 1, 0)]).range([0, width]);
+                chartYScale = d3.scaleLinear().domain([0, (d3.max(rainData, d => d.avg) || 10) * 1.2]).range([height, 5]);
+                const area = d3.area().curve(d3.curveMonotoneX).x((d, i) => chartXScale(i)).y0(height).y1(d => chartYScale(d.avg));
+                svg.append("path").datum(rainData).attr("class", "chart-area").attr("d", area);
+            } else {
+                chartXScale = d3.scaleLinear().domain([0, Math.max(data.length - 1, 0)]).range([0, width]);
+                chartYScale = d3.scaleLinear().domain([0, (d3.max(yVals) || 10) * 1.2]).range([height, 5]);
+                const lineIn = d3.line().defined(d => Number.isFinite(d.qIn)).x((d, i) => chartXScale(i)).y(d => chartYScale(d.qIn)).curve(d3.curveMonotoneX);
+                const lineOut = d3.line().defined(d => Number.isFinite(d.qOut)).x((d, i) => chartXScale(i)).y(d => chartYScale(d.qOut)).curve(d3.curveMonotoneX);
+                svg.append("path").datum(data).attr("fill", "none").attr("stroke", "#22c55e").attr("stroke-width", 2).attr("d", lineIn);
+                svg.append("path").datum(data).attr("fill", "none").attr("stroke", "#ef4444").attr("stroke-width", 2).attr("d", lineOut);
+            }
+
+            if (labelEl) {
+                labelEl.textContent = mode === 'flow' ? 'Lượng đến/xả của hồ Sông Ba Hạ' : 'Lượng mưa trung bình';
+            }
+            const ratioEl = document.getElementById('lake-ratio-label');
+            if (ratioEl) {
+                const latestRatio = Number.isFinite(latestRecord?.ratio) ? latestRecord.ratio : null;
+                const status = getLakeStatus(latestRecord);
+                const ratioText = Number.isFinite(latestRatio) ? `${latestRatio.toFixed(1)}%` : '—';
+                ratioEl.textContent = `Đầy ${ratioText}`;
+                ratioEl.style.color = status.color;
+                ratioEl.style.backgroundColor = applyOpacity(status.color, 0.12);
+                ratioEl.style.border = `1px solid ${applyOpacity(status.color, 0.35)}`;
+                ratioEl.style.padding = '2px 6px';
+                ratioEl.style.borderRadius = '9999px';
+                ratioEl.style.display = 'inline-block';
+            }
             
             svg.append("rect").attr("id", "chart-selection-rect").attr("class", "chart-selection-rect").attr("height", height).attr("y", 0);
             svg.append("line").attr("id", "chart-cursor-line").attr("class", "chart-cursor").attr("y1", 0).attr("y2", height);
@@ -1223,14 +1454,19 @@
             const baseWidth = options.width || 260;
             const baseHeight = options.height || 140;
             const parentWidth = target.parentElement?.clientWidth || baseWidth;
-            const width = mobile ? Math.max(160, parentWidth) : baseWidth;
+            const width = mobile ? Math.max(160, parentWidth) : Math.max(baseWidth, parentWidth);
             const aspect = baseHeight / baseWidth;
-            const height = mobile ? Math.max(80, width * aspect) : baseHeight;
-            if (mobile) target.style.width = '100%';
+            const height = mobile ? Math.max(80, width * aspect) : Math.max(baseHeight, Math.round(width * aspect * 0.5));
+            target.style.width = '100%';
             const margin = { top: 10, right: 10, bottom: mobile ? 10 : 22, left: 32 };
             const innerW = width - margin.left - margin.right, innerH = height - margin.top - margin.bottom;
             target.style.position = 'relative';
-            const svgRoot = d3.select(target).append("svg").attr("width", width).attr("height", height);
+            const svgRoot = d3.select(target).append("svg")
+                .attr("width", width)
+                .attr("height", height)
+                .attr("viewBox", `0 0 ${width} ${height}`)
+                .style("width", "100%")
+                .style("height", `${height}px`);
             const svg = svgRoot.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
             const domainDates = state.dates.slice(state.visibleStartIndex);
             const x = d3.scalePoint().domain(domainDates).range([0, innerW]);
@@ -1451,84 +1687,15 @@
         }
 
         function setPinnedStations(stationsToPin) {
-            popupOverlay.setPosition(undefined); // Close any open popups
+            // Pinned charts disabled
+            popupOverlay.setPosition(undefined);
             pinnedCharts = [];
-
-            stationsToPin.forEach(pinRequest => {
-                const search = normalizeSimple(pinRequest.name);
-                let targetFeature = null;
-                let sourceLayer = null;
-
-                if (lakeLayer) {
-                    targetFeature = lakeLayer.getSource().getFeatures().find(f => normalizeSimple(f.get('stationLabel')).includes(search));
-                    if (targetFeature) sourceLayer = 'lake';
-                }
-                if (!targetFeature && stationLayer) {
-                    targetFeature = stationLayer.getSource().getFeatures().find(f => normalizeSimple(f.get('stationLabel')).includes(search));
-                    if (targetFeature) sourceLayer = 'station';
-                }
-
-                if (targetFeature) {
-                    const sid = targetFeature.get('stationId');
-                    pinnedCharts.push({ type: sourceLayer, id: sid, subtype: pinRequest.subtype || null });
-                }
-            });
-
             renderPinnedCharts();
-
-            // Center on the single pinned feature if applicable
-            if (stationsToPin.length === 1 && pinnedCharts.length === 1) {
-                const sid = pinnedCharts[0].id;
-                const targetFeature = (lakeLayer?.getSource()?.getFeatures() || []).concat(stationLayer?.getSource()?.getFeatures() || []).find(f => f.get('stationId') === sid);
-                if (!targetFeature) return;
-                const coords = targetFeature.getGeometry().getCoordinates();
-                const view = map.getView();
-                view.animate({ center: coords, duration: 800, zoom: 12 });
-            }
-            // If nothing was found, clear to avoid stale UI
-            if (!pinnedCharts.length) renderPinnedCharts();
-            requestViewUpdate();
         }
 
         function renderPinnedCharts() {
-            if (!DOM.pinnedList) return;
-            DOM.pinnedList.innerHTML = '';
-
-            pinnedCharts.forEach(pin => {
-                const meta = state.stationMeta[pin.id];
-                if (!meta) return;
-
-                const container = document.createElement('div');
-                container.className = "glass-panel rounded-lg p-3 w-full";
-
-                const warnRecord = state.waterLevelMap[state.endIndex]?.[pin.id];
-                const status = meta.type === 'lake' ? getLakeStatus(warnRecord) : getRiverStatus(warnRecord);
-                const statusText = meta.type === 'lake' ? `Đầy ${Number.isFinite(warnRecord?.ratio) ? warnRecord.ratio.toFixed(1) + '%' : '—'}` : (status?.label || getWarningLabel(warnRecord?.warningValue));
-                
-                const header = `
-                    <div class="flex items-start justify-between mb-2">
-                        <div>
-                            <div class="font-bold text-sm text-white">${meta.name}</div>
-                            <div class="text-[11px] text-gray-400">Sông ${meta.river || '—'}</div>
-                        </div>
-                        <span class="px-2 py-1 rounded text-[11px] font-semibold" style="background:${status.color}22;color:${status.color};border:1px solid ${status.color}55;">
-                            ${statusText}
-                        </span>
-                    </div>
-                    <div class="border-b border-gray-700 mb-2"></div>
-                `;
-                container.innerHTML = header;
-
-                const chartsToBuild = buildStationPinnedCharts(pin.id, pin.subtype);
-                chartsToBuild.forEach(chartConfig => {
-                    const chartDiv = document.createElement('div');
-                    container.appendChild(chartDiv);
-                    renderLineChart(chartDiv, chartConfig.series, chartConfig.options);
-                });
-
-                DOM.pinnedList.appendChild(container);
-            });
-            
+            // Clear charts and do nothing (pinned charts removed)
+            document.querySelectorAll('.step-pinned-charts').forEach(el => el.innerHTML = '');
             renderMobilePinnedPreview();
         }
 
@@ -1594,7 +1761,7 @@
                         series: [{ data: storageSeries, color: "#38bdf8", label: "Dung tích" }],
                         options: {
                             height: 120, /* Increased from 100 */
-                            width: 320, /* Increased from 250 */
+                            width: 300, /* Slightly narrower */
                             annotations,
                             cursorIndex: relEnd,
                             selectionRange: { start: relStart, end: relEnd },
@@ -1613,7 +1780,7 @@
                         ],
                         options: {
                             height: 120, /* Increased from 100 */
-                            width: 320, /* Increased from 250 */
+                            width: 300, /* Slightly narrower */
                             cursorIndex: relEnd,
                             selectionRange: { start: relStart, end: relEnd },
                             legend: [{ label: "Lượng đến", color: "#22c55e" }, { label: "Lượng xả", color: "#ef4444" }]
@@ -1630,8 +1797,8 @@
             const levelSeries = buildStationSeries(sid, rec => Number(rec?.value));
             if (!levelSeries.length) return [];
             const options = {
-                height: 180, /* Increased from 150 */
-                width: 320, /* Increased from 250 */
+                height: 120, /* Align height with lake charts */
+                width: 300,
                 cursorIndex: relEnd,
                 selectionRange: { start: relStart, end: relEnd },
                 legend: [{ label: "Mực nước", color: "#38bdf8" }],
@@ -1660,67 +1827,15 @@
             if (!DOM.mobilePinnedPreview) return;
             const wrapper = document.querySelector('.timeline-wrapper');
             const panel = wrapper?.querySelector('.glass-panel');
-            const isMobile = isMobileView();
             DOM.mobilePinnedPreview.innerHTML = '';
 
-            // Reset desktop view
-            if (!isMobile || !pinnedCharts.length) {
-                if (wrapper) {
-                    wrapper.style.display = 'none';
-                    wrapper.style.pointerEvents = 'none';
-                    wrapper.classList.remove('show-mobile-pins');
-                }
-                if (panel) panel.querySelectorAll(':scope > *').forEach(el => { el.style.display = ''; });
-                return;
-            }
-
-            // Show lightweight pinned cards on mobile
+            // Keep timeline visible; we no longer hide the wrapper
             if (wrapper) {
                 wrapper.style.display = 'flex';
-                wrapper.style.pointerEvents = 'auto';
-                wrapper.classList.add('show-mobile-pins');
+                wrapper.style.pointerEvents = 'none';
+                wrapper.classList.remove('show-mobile-pins');
             }
-            if (panel) panel.querySelectorAll(':scope > *').forEach(el => {
-                el.style.display = el.id === 'mobile-pinned-preview' ? 'block' : 'none';
-            });
-
-            pinnedCharts.forEach(pin => {
-                const meta = state.stationMeta[pin.id];
-                if (!meta) return;
-                const warnRecord = state.waterLevelMap[state.endIndex]?.[pin.id];
-                const status = meta.type === 'lake' ? getLakeStatus(warnRecord) : getRiverStatus(warnRecord);
-                const statusText = meta.type === 'lake'
-                    ? `Đầy ${Number.isFinite(warnRecord?.ratio) ? warnRecord.ratio.toFixed(1) + '%' : '—'}`
-                    : (status?.label || getWarningLabel(warnRecord?.warningValue));
-
-                const card = document.createElement('div');
-                card.className = "mobile-pin-card mb-3";
-                card.innerHTML = `
-                    <div class="flex items-start justify-between mb-2">
-                        <div>
-                            <div class="mobile-pin-title text-white">${meta.name}</div>
-                            <div class="mobile-pin-sub">Sông ${meta.river || '—'}</div>
-                        </div>
-                        <span class="mobile-pin-badge" style="color:${status.color};background:${applyOpacity(status.color, 0.15)};">
-                            ${statusText}
-                        </span>
-                    </div>
-                `;
-
-                const charts = buildStationPinnedCharts(pin.id, pin.subtype);
-                charts.forEach(cfg => {
-                    const div = document.createElement('div');
-                    card.appendChild(div);
-                    const opts = { 
-                        ...cfg.options, 
-                        width: window.innerWidth - 48,
-                        height: Math.min(70, cfg.options?.height || 70)
-                    };
-                    renderLineChart(div, cfg.series, opts);
-                });
-
-                DOM.mobilePinnedPreview.appendChild(card);
-            });
+            if (panel) panel.querySelectorAll(':scope > *').forEach(el => { el.style.display = ''; });
         }
 
         // =============================================================================
@@ -1761,10 +1876,12 @@
         }
 
         DOM.sliderStart.addEventListener('input', () => { 
+            stopSliderAnimation();
             if(parseInt(DOM.sliderStart.value) > parseInt(DOM.sliderEnd.value)) DOM.sliderEnd.value = DOM.sliderStart.value; 
             requestViewUpdate(); 
         });
         DOM.sliderEnd.addEventListener('input', () => { 
+            stopSliderAnimation();
             if(parseInt(DOM.sliderEnd.value) < parseInt(DOM.sliderStart.value)) DOM.sliderStart.value = DOM.sliderEnd.value; 
             requestViewUpdate(); 
         });
@@ -1780,6 +1897,18 @@
         };
         bindOpacity(DOM.opacityRain, 'rain');
         bindOpacity(DOM.opacityHydro, 'hydro');
+        const toggleLegend = (force) => {
+            if (!DOM.legendPanel) return;
+            const shouldShow = (force === undefined) ? DOM.legendPanel.classList.contains('hidden') : force;
+            if (shouldShow) DOM.legendPanel.classList.remove('hidden');
+            else DOM.legendPanel.classList.add('hidden');
+        };
+        if (DOM.legendToggleBtn && DOM.legendPanel) {
+            DOM.legendToggleBtn.addEventListener('click', () => toggleLegend());
+        }
+        if (DOM.legendCloseBtn && DOM.legendPanel) {
+            DOM.legendCloseBtn.addEventListener('click', () => toggleLegend(false));
+        }
         
         // =============================================================================
         // 9. SCROLLYTELLING LOGIC
@@ -1791,17 +1920,21 @@
                 rootMargin: '-40% 0px -40% 0px', // Trigger when element is in middle 20% of screen
                 threshold: 0
             };
+            const scroller = observerOptions.root;
 
             const observer = new IntersectionObserver((entries) => {
+                let anyStepActive = false;
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
+                        anyStepActive = true;
                         const stepIndex = entry.target.dataset.step;
                         
-            // Highlight active text
-            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-            entry.target.classList.add('active');
-            currentStoryStep = parseInt(stepIndex, 10);
-            requestViewUpdate();
+                        // Highlight active text
+                        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+                        entry.target.classList.add('active');
+                        currentStoryStep = parseInt(stepIndex, 10);
+                        if (scroller) stepScrollAnchors[currentStoryStep] = scroller.scrollTop;
+                        requestViewUpdate();
 
                         if (stepIndex === "1") activateStep1();
                         if (stepIndex === "2") activateStep2();
@@ -1810,11 +1943,18 @@
                         if (stepIndex === "5") activateStep5();
                         if (stepIndex === "6") activateStep6();
                         if (stepIndex === "7") activateStep7();
+                    } else {
+                        entry.target.classList.remove('active');
                     }
                 });
+                if (!anyStepActive && isMobileView()) {
+                    document.querySelector('.timeline-wrapper')?.classList.remove('show-mobile-pins');
+                }
+                if (anyStepActive) updateTimelineFromScroll();
             }, observerOptions);
 
             document.querySelectorAll('.step').forEach(step => observer.observe(step));
+            if (scroller) scroller.addEventListener('scroll', handleStoryScroll, { passive: true });
             
             // Initial call
             setTimeout(() => {
@@ -1843,16 +1983,127 @@
             return closestIdx;
         }
 
-        function setTimeline(startStr, endStr) {
-            const sIdx = findDateIndex(startStr);
-            const eIdx = findDateIndex(endStr);
-            
-            DOM.sliderStart.value = sIdx;
-            DOM.sliderEnd.value = eIdx;
+        const clamp01 = (v) => Math.min(1, Math.max(0, v));
+        function animateTimelineRange(startIdx, endIdx, duration = 2800) {
+            stopSliderAnimation();
+            const minIdx = parseInt(DOM.sliderStart.min || 0, 10);
+            const maxIdx = parseInt(DOM.sliderStart.max || state.dates.length - 1, 10);
+            const clampedStart = Math.min(maxIdx, Math.max(minIdx, startIdx));
+            const clampedEnd = Math.min(maxIdx, Math.max(minIdx, endIdx));
+
+            DOM.sliderStart.value = clampedStart;
+            DOM.sliderEnd.value = clampedStart;
             requestViewUpdate();
+            if (clampedStart === clampedEnd) return;
+
+            const distance = clampedEnd - clampedStart;
+            const animStart = performance.now();
+            let lastValue = clampedStart;
+            const easeInOut = (t) => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+            const stepAnim = (now) => {
+                const progress = Math.min(1, (now - animStart) / duration);
+                const eased = easeInOut(progress);
+                const nextVal = Math.round(clampedStart + distance * eased);
+                if (nextVal !== lastValue) {
+                    DOM.sliderEnd.value = nextVal;
+                    lastValue = nextVal;
+                    requestViewUpdate();
+                }
+                if (progress < 1) {
+                    sliderAnimationFrame = requestAnimationFrame(stepAnim);
+                } else {
+                    sliderAnimationFrame = null;
+                }
+            };
+            sliderAnimationFrame = requestAnimationFrame(stepAnim);
         }
 
-        function zoomToRiver(riverName) {
+        function setTimeline(startStr, endStr, options = {}) {
+            const duration = options.duration || 3200;
+            const animate = options.animate === true;
+            const sIdx = findDateIndex(startStr);
+            const eIdx = findDateIndex(endStr);
+            const stepKey = options.step || currentStoryStep || null;
+            const snapToStart = options.snapToStart !== false;
+
+            if (stepKey) stepRanges[stepKey] = { start: sIdx, end: eIdx };
+
+            if (!animate) {
+                stopSliderAnimation();
+                DOM.sliderStart.value = sIdx;
+                DOM.sliderEnd.value = snapToStart ? sIdx : eIdx;
+                requestViewUpdate();
+                return;
+            }
+            
+            animateTimelineRange(sIdx, eIdx, duration);
+        }
+
+        function updateTimelineFromScroll() {
+            const scroller = document.getElementById('story-container');
+            const activeStep = document.querySelector('.step.active');
+            if (!scroller || !activeStep) return;
+            const stepNum = parseInt(activeStep.dataset.step, 10);
+            const range = stepRanges[stepNum];
+            if (!range) return;
+
+            const stepTop = activeStep.offsetTop;
+            const stepHeight = activeStep.offsetHeight || 1;
+            const viewportH = scroller.clientHeight || 1;
+            const scrollTop = scroller.scrollTop;
+            // Start tracking as soon as the step activates; finish when it leaves the top.
+            // Compute a per-pixel jump so time = (scroll delta) * (timeSpan / scrollSpan).
+            const startAt = stepTop; // no buffer so timeline starts immediately
+            const endAt = stepTop + stepHeight;
+            const scrollSpan = Math.max(32, endAt - startAt); // avoid tiny spans
+            const timeSpan = Math.max(1, range.end - range.start);
+            const speedBoost = 1.35; // push timeline further per scroll
+            const anchor = stepScrollAnchors[stepNum] ?? startAt;
+            const effectiveStart = anchor; // start exactly where the step was activated
+            const effectiveSpan = Math.max(32, endAt - effectiveStart);
+            const deltaScroll = Math.max(0, scrollTop - effectiveStart) * speedBoost;
+            const clampedProgress = clamp01(deltaScroll / effectiveSpan);
+            const nextIdx = range.start + Math.round(timeSpan * clampedProgress);
+
+            if (parseInt(DOM.sliderEnd.value, 10) !== nextIdx || parseInt(DOM.sliderStart.value, 10) !== range.start) {
+                DOM.sliderStart.value = range.start;
+                DOM.sliderEnd.value = nextIdx;
+                requestViewUpdate();
+            }
+        }
+
+        function handleStoryScroll() {
+            if (scrollSyncPending) return;
+            scrollSyncPending = true;
+            requestAnimationFrame(() => {
+                scrollSyncPending = false;
+                updateTimelineFromScroll();
+            });
+        }
+
+        const lonLatBoxToExtent = (box) => {
+            if (!Array.isArray(box) || box.length !== 4) return null;
+            const [minLon, minLat, maxLon, maxLat] = box.map(Number);
+            const bl = ol.proj.fromLonLat([minLon, minLat]);
+            const tr = ol.proj.fromLonLat([maxLon, maxLat]);
+            return ol.extent.boundingExtent([bl, tr]);
+        };
+        const bufferExtent = (extent, meters = 0) => {
+            if (!extent) return null;
+            return ol.extent.buffer(extent, meters);
+        };
+        function fitToStoryBounds(key, fallbackExtent, options = {}) {
+            const cfg = STORY_BOUNDS[key];
+            const padding = options.padding || cfg?.padding || fitPadding();
+            const duration = options.duration || cfg?.duration || 900;
+            let extent = cfg?.extentLonLat ? lonLatBoxToExtent(cfg.extentLonLat) : null;
+            if (!extent && typeof fallbackExtent === 'function') extent = fallbackExtent();
+            else if (!extent) extent = fallbackExtent;
+            if (!extent || ol.extent.isEmpty(extent)) return;
+            map.getView().fit(extent, { padding, duration });
+        }
+        function getRiverExtent(riverName) {
             // Find extent of all stations/river features matching name
             let extent = ol.extent.createEmpty();
             let found = false;
@@ -1887,7 +2138,33 @@
             }
 
             if (found && !ol.extent.isEmpty(extent)) {
-                map.getView().fit(extent, { padding: fitPadding(), duration: 1000 }); // Responsive padding leaves room for story text
+                return extent;
+            }
+            return null;
+        }
+        function getStationExtent(nameStr, bufferMeters = 10000) {
+            const search = normalizeSimple(nameStr);
+            const collectExtent = (layer) => {
+                if (!layer) return null;
+                let target = null;
+                layer.getSource().getFeatures().forEach(f => {
+                    const label = normalizeSimple(f.get('stationLabel'));
+                    if (label.includes(search)) target = f;
+                });
+                if (!target) return null;
+                const coords = target.getGeometry().getCoordinates();
+                const baseExtent = ol.extent.boundingExtent([coords, coords]);
+                return bufferExtent(baseExtent, bufferMeters);
+            };
+            return collectExtent(lakeLayer) || collectExtent(stationLayer);
+        }
+
+        function zoomToRiver(riverName, boundsKey = null, options = {}) {
+            const fallback = () => getRiverExtent(riverName);
+            if (boundsKey) fitToStoryBounds(boundsKey, fallback, options);
+            else {
+                const ext = fallback();
+                if (ext) map.getView().fit(ext, { padding: fitPadding(), duration: 1000 });
             }
         }
 
@@ -1916,13 +2193,54 @@
             }
         }
 
+        function showSongBaHaLabel() {
+            if (currentStoryStep === 4) {
+                storyLabelElement.classList.add('hidden');
+                storyLabelOverlay.setPosition(undefined);
+                return;
+            }
+            if (lakeLayer) {
+                const songBaHaFeature = lakeLayer.getSource().getFeatures().find(f => normalizeSimple(f.get('stationLabel')).includes('sông ba hạ'));
+                if (songBaHaFeature) {
+                    const coords = songBaHaFeature.getGeometry().getCoordinates();
+                    storyLabelElement.innerText = 'Hồ Sông Ba Hạ';
+                    styleLabelChip(storyLabelElement, COLORS.blue);
+                    storyLabelOverlay.setPosition(coords);
+                    storyLabelElement.classList.remove('hidden');
+                    return;
+                }
+            }
+            storyLabelElement.classList.add('hidden');
+        }
+
+        function showCungSonLabel(force = false) {
+            if (!force && ![2,3,5,6].includes(currentStoryStep)) return hideCungSonLabel();
+            if (!stationLayer) return hideCungSonLabel();
+            const feature = stationLayer.getSource().getFeatures().find(f => normalizeSimple(f.get('stationLabel')).includes('củng sơn'));
+            if (!feature) return hideCungSonLabel();
+            const sid = feature.get('stationId');
+            const record = state.waterLevelMap[state.endIndex]?.[sid];
+            const status = getRiverStatus(record);
+            const warnText = status?.label || 'Mực nước';
+
+            const coords = feature.getGeometry().getCoordinates();
+            cungSonLabelElement.innerText = `Trạm Củng Sơn - ${warnText}`;
+            styleLabelChip(cungSonLabelElement, status?.color || COLORS.blue);
+            cungSonLabelOverlay.setPosition(coords);
+            cungSonLabelElement.classList.remove('hidden');
+        }
+
+        function refreshStoryLabels() {
+            showSongBaHaLabel();
+            showCungSonLabel();
+        }
+
         // --- STEP 1 LOGIC ---
         function activateStep1() {
             popupOverlay.setPosition(undefined);
             currentStoryStep = 1;
             // Time: 0h 15/11/2025
-            const t = "2025-11-15T00:00:00";
-            setTimeline(t, t);
+            setTimeline("2025-11-14T01:00:00", "2025-11-14T20:00:00", { step: 1, animate: false });
 
             // Layer visible: Lakes, Rivers
             layerVisibility = { rain: false, river: true, stations: false, lakes: true };
@@ -1939,21 +2257,13 @@
             applyLayerVisibility();
 
             // Zoom fit Sông Ba
-            zoomToRiver("Ba");
+            zoomToRiver("Ba", "baBasin");
 
-            // Clear pinned items
-            pinnedCharts = [];
+            // Pin Station: Hồ Sông Ba Hạ (Flow) to show chart on first slide
+            setPinnedStations([{ name: "Sông Ba Hạ", subtype: "flow" }]);
 
-            // Show label for Ho Song Ba Ha
-            if (lakeLayer) {
-                const songBaHaFeature = lakeLayer.getSource().getFeatures().find(f => normalizeSimple(f.get('stationLabel')).includes('sông ba hạ'));
-                if (songBaHaFeature) {
-                    const coords = songBaHaFeature.getGeometry().getCoordinates();
-                    storyLabelElement.innerText = 'Hồ Sông Ba Hạ';
-                    storyLabelOverlay.setPosition(coords);
-                    storyLabelElement.classList.remove('hidden');
-                }
-            }
+            showSongBaHaLabel();
+            hideCungSonLabel();
 
             renderPinnedCharts();
         }
@@ -1962,12 +2272,11 @@
         function activateStep2() {
             popupOverlay.setPosition(undefined);
             currentStoryStep = 2;
-            storyLabelElement.classList.add('hidden'); // Hide label
             // Time: 20h 14/11 - 10h 16/11
-            setTimeline("2025-11-14T20:00:00", "2025-11-16T10:00:00");
+            setTimeline("2025-11-14T20:00:00", "2025-11-16T10:00:00", { step: 2, animate: false });
 
             // Layer visible: Lakes, Rivers (Keep same as step 1 usually, or ensure)
-            layerVisibility = { rain: false, river: true, stations: false, lakes: true };
+            layerVisibility = { rain: false, river: true, stations: true, lakes: true };
             applyLayerVisibility();
 
             // Filter: Sông Ba (Ensure maintained)
@@ -1980,18 +2289,21 @@
 
             // Pin Station: Hồ Sông Ba Hạ (Flow)
             setPinnedStations([{ name: "Sông Ba Hạ", subtype: "flow" }]);
+
+            fitToStoryBounds("songBaHaTight", () => getStationExtent("Sông Ba Hạ", 22000));
+            showSongBaHaLabel();
+            showCungSonLabel();
         }
 
         // --- STEP 3 LOGIC ---
         function activateStep3() {
             popupOverlay.setPosition(undefined);
             currentStoryStep = 3;
-            storyLabelElement.classList.add('hidden'); // Hide label
             // Time: 10h 16/11 - 19h 18/11
-            setTimeline("2025-11-16T10:00:00", "2025-11-18T19:00:00");
+            setTimeline("2025-11-16T10:00:00", "2025-11-18T19:00:00", { step: 3, animate: false });
 
             // Layer visible: Lakes, Rivers
-            layerVisibility = { rain: false, river: true, stations: false, lakes: true };
+            layerVisibility = { rain: false, river: true, stations: true, lakes: true };
             applyLayerVisibility();
 
             // Filter: Sông Ba (Ensure maintained)
@@ -2004,24 +2316,28 @@
 
             // Pin Station: Hồ Sông Ba Hạ (Flow)
             setPinnedStations([{ name: "Sông Ba Hạ", subtype: "flow" }]);
+
+            fitToStoryBounds("songBaHaTight", () => getStationExtent("Sông Ba Hạ", 9000));
+            showSongBaHaLabel();
+            showCungSonLabel();
         }
 
         // --- STEP 4 LOGIC ---
         function activateStep4() {
             popupOverlay.setPosition(undefined);
             currentStoryStep = 4;
-            storyLabelElement.classList.add('hidden'); // Hide label
+            state.mode = 'accumulated'; // highlight rain tích lũy over full region
             // Time: 19h 18/11 - 9h 19/11
-            setTimeline("2025-11-18T19:00:00", "2025-11-19T09:00:00");
+            setTimeline("2025-11-18T19:00:00", "2025-11-19T09:00:00", { step: 4, animate: false });
 
             // Layer visible: Rain, Lakes, Rivers, Stations
             layerVisibility = { rain: true, river: true, stations: true, lakes: true };
             applyLayerVisibility();
 
-            // Filter: Đắk Lắk province
+            // Filters: whole region rain, keep only Sông Ba hydro network
             filters.rivers.clear();
             filters.provinces.clear();
-            filters.provinces.add("Đắk Lắk");
+            filters.rivers.add("Ba");
             initGeoLayer();
             initRiverLayer(); 
             initStationLayer();
@@ -2031,18 +2347,21 @@
                 { name: "Củng Sơn" },
                 { name: "Sông Ba Hạ", subtype: "flow" }
             ]);
+
+            fitToStoryBounds("wholeRegion", () => bufferExtent(getRiverExtent("Ba"), 60000));
+            showSongBaHaLabel();
+            hideCungSonLabel();
         }
 
         // --- STEP 5 LOGIC ---
         function activateStep5() {
             popupOverlay.setPosition(undefined);
             currentStoryStep = 5;
-            storyLabelElement.classList.add('hidden'); // Hide label
             // Time: 9h 19/11 - 17h 19/11
-            setTimeline("2025-11-19T09:00:00", "2025-11-19T17:00:00");
+            setTimeline("2025-11-19T09:00:00", "2025-11-19T17:00:00", { step: 5, animate: false });
 
-            // Layer visible: Rain, Lakes, Rivers, Stations
-            layerVisibility = { rain: true, river: true, stations: true, lakes: true };
+            // Layer visible: hide rain, show hydro layers
+            layerVisibility = { rain: false, river: true, stations: true, lakes: true };
             applyLayerVisibility();
 
             // Filter: Sông Ba
@@ -2055,20 +2374,21 @@
             }
             
             // Zoom and Popup
-            zoomToRiver("Ba");
+            fitToStoryBounds("songBaHaTight", () => getStationExtent("Sông Ba Hạ", 22000));
             setPinnedStations([
                 { name: "Sông Ba Hạ", subtype: "storage" },
                 { name: "Sông Ba Hạ", subtype: "flow" }
             ]);
+            showSongBaHaLabel();
+            showCungSonLabel();
         }
 
         // --- STEP 6 LOGIC ---
         function activateStep6() {
             popupOverlay.setPosition(undefined);
             currentStoryStep = 6;
-            storyLabelElement.classList.add('hidden'); // Hide label
             // Time: 20h 19/11 - 19h 20/11
-            setTimeline("2025-11-19T20:00:00", "2025-11-20T19:00:00");
+            setTimeline("2025-11-19T20:00:00", "2025-11-20T19:00:00", { step: 6, animate: false });
 
             // Layer visible: Rain, Lakes, Rivers, Stations
             layerVisibility = { rain: true, river: true, stations: true, lakes: true };
@@ -2084,20 +2404,21 @@
             }
             
             // Zoom and Popup
-            zoomToRiver("Ba");
+            fitToStoryBounds("songBaHaArea", () => getStationExtent("Sông Ba Hạ", 22000));
             setPinnedStations([
                 { name: "Sông Ba Hạ", subtype: "storage" },
                 { name: "Sông Ba Hạ", subtype: "flow" }
             ]);
+            showSongBaHaLabel();
+            showCungSonLabel();
         }
 
         // --- STEP 7 LOGIC ---
         function activateStep7() {
             popupOverlay.setPosition(undefined);
             currentStoryStep = 7;
-            storyLabelElement.classList.add('hidden'); // Hide label
             // Time: 1h 20/11 - 3h 20/11
-            setTimeline("2025-11-20T01:00:00", "2025-11-20T03:00:00");
+            setTimeline("2025-11-20T01:00:00", "2025-11-20T03:00:00", { step: 7, animate: false });
 
             // Layer visible: Rain, Lakes, Rivers, Stations
             layerVisibility = { rain: true, river: true, stations: true, lakes: true };
@@ -2125,6 +2446,10 @@
                 { name: "Củng Sơn" },
                 { name: "Phú Lâm" }
             ]);
+
+            fitToStoryBounds("songBaHaArea", () => getStationExtent("Sông Ba Hạ", 22000));
+            showSongBaHaLabel();
+            hideCungSonLabel();
         }
 
         // Start Application
