@@ -530,6 +530,7 @@
             return () => { popupCursorRegistry = popupCursorRegistry.filter(e => e !== entry); };
         };
         const hideCungSonLabel = () => { cungSonLabelOverlay.setPosition(undefined); cungSonLabelElement.classList.add('hidden'); };
+        const hidePhuLamLabel = () => { phuLamLabelOverlay.setPosition(undefined); phuLamLabelElement.classList.add('hidden'); };
         function updatePopupCursorLines() {
             const cursorIdx = Math.max(0, state.endIndex - state.visibleStartIndex);
             popupCursorRegistry = popupCursorRegistry.filter(entry => {
@@ -663,6 +664,17 @@
             stopEvent: false
         });
         map.addOverlay(cungSonLabelOverlay);
+        const phuLamLabelElement = document.createElement('div');
+        phuLamLabelElement.id = 'phulam-label';
+        phuLamLabelElement.className = 'text-white font-bold pointer-events-none hidden';
+        document.body.appendChild(phuLamLabelElement);
+        const phuLamLabelOverlay = new ol.Overlay({
+            element: phuLamLabelElement,
+            positioning: 'bottom-center',
+            offset: [0, -10],
+            stopEvent: false
+        });
+        map.addOverlay(phuLamLabelOverlay);
 
         function showHoverTooltip(html, coordinate) {
             hoverTooltipElement.innerHTML = html;
@@ -2194,7 +2206,7 @@
         }
 
         function showSongBaHaLabel() {
-            if (currentStoryStep === 4) {
+            if (currentStoryStep === 4 || currentStoryStep === 7) {
                 storyLabelElement.classList.add('hidden');
                 storyLabelOverlay.setPosition(undefined);
                 return;
@@ -2214,7 +2226,7 @@
         }
 
         function showCungSonLabel(force = false) {
-            if (!force && ![2,3,5,6].includes(currentStoryStep)) return hideCungSonLabel();
+            if (!force && ![2,3,5,6,7].includes(currentStoryStep)) return hideCungSonLabel();
             if (!stationLayer) return hideCungSonLabel();
             const feature = stationLayer.getSource().getFeatures().find(f => normalizeSimple(f.get('stationLabel')).includes('củng sơn'));
             if (!feature) return hideCungSonLabel();
@@ -2230,9 +2242,27 @@
             cungSonLabelElement.classList.remove('hidden');
         }
 
+        function showPhuLamLabel(force = false) {
+            if (!force && currentStoryStep !== 7) return hidePhuLamLabel();
+            if (!stationLayer) return hidePhuLamLabel();
+            const feature = stationLayer.getSource().getFeatures().find(f => normalizeSimple(f.get('stationLabel')).includes('phú lâm'));
+            if (!feature) return hidePhuLamLabel();
+            const sid = feature.get('stationId');
+            const record = state.waterLevelMap[state.endIndex]?.[sid];
+            const status = getRiverStatus(record);
+            const warnText = status?.label || 'Mực nước';
+
+            const coords = feature.getGeometry().getCoordinates();
+            phuLamLabelElement.innerText = `Trạm Phú Lâm - ${warnText}`;
+            styleLabelChip(phuLamLabelElement, status?.color || COLORS.blue);
+            phuLamLabelOverlay.setPosition(coords);
+            phuLamLabelElement.classList.remove('hidden');
+        }
+
         function refreshStoryLabels() {
             showSongBaHaLabel();
             showCungSonLabel();
+            showPhuLamLabel();
         }
 
         // --- STEP 1 LOGIC ---
@@ -2264,6 +2294,7 @@
 
             showSongBaHaLabel();
             hideCungSonLabel();
+            hidePhuLamLabel();
 
             renderPinnedCharts();
         }
@@ -2293,6 +2324,7 @@
             fitToStoryBounds("songBaHaTight", () => getStationExtent("Sông Ba Hạ", 22000));
             showSongBaHaLabel();
             showCungSonLabel();
+            hidePhuLamLabel();
         }
 
         // --- STEP 3 LOGIC ---
@@ -2320,6 +2352,7 @@
             fitToStoryBounds("songBaHaTight", () => getStationExtent("Sông Ba Hạ", 9000));
             showSongBaHaLabel();
             showCungSonLabel();
+            hidePhuLamLabel();
         }
 
         // --- STEP 4 LOGIC ---
@@ -2349,8 +2382,9 @@
             ]);
 
             fitToStoryBounds("wholeRegion", () => bufferExtent(getRiverExtent("Ba"), 60000));
-            showSongBaHaLabel();
-            hideCungSonLabel();
+            hideSongBaHaLabel();
+            showCungSonLabel();
+            hidePhuLamLabel();
         }
 
         // --- STEP 5 LOGIC ---
@@ -2381,6 +2415,7 @@
             ]);
             showSongBaHaLabel();
             showCungSonLabel();
+            hidePhuLamLabel();
         }
 
         // --- STEP 6 LOGIC ---
@@ -2409,8 +2444,9 @@
                 { name: "Sông Ba Hạ", subtype: "storage" },
                 { name: "Sông Ba Hạ", subtype: "flow" }
             ]);
-            showSongBaHaLabel();
-            showCungSonLabel();
+            hideSongBaHaLabel();
+            showCungSonLabel(true);
+            showPhuLamLabel(true);
         }
 
         // --- STEP 7 LOGIC ---
@@ -2448,8 +2484,9 @@
             ]);
 
             fitToStoryBounds("songBaHaArea", () => getStationExtent("Sông Ba Hạ", 22000));
-            showSongBaHaLabel();
-            hideCungSonLabel();
+            hideSongBaHaLabel();
+            showCungSonLabel(true);
+            showPhuLamLabel(true);
         }
 
         // Start Application
