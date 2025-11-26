@@ -13,7 +13,8 @@
         body { font-family: 'Inter', sans-serif; background: #1a1a1a; color: #e5e5e5; overflow: hidden; }
         
         /* --- Map & Layout --- */
-        #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; background: #222; }
+        #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; background: #222; transition: opacity 0.6s ease, filter 0.6s ease; }
+        #map.map-faded { opacity: 0.12; filter: grayscale(0.8) blur(0.6px); }
 
         /* --- Custom Slider Styling --- */
         .range-container { position: relative; width: 100%; height: 20px; display: flex; align-items: center; }
@@ -183,6 +184,14 @@
             /* UPDATED: Increased font size for readability */
             font-size: 1.1rem;
         }
+
+        /* Media slides */
+        .step-content.media-step { border-left-color: #f59e0b; }
+        .story-media { width: 100%; max-width: 900px; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(12,12,12,0.9); box-shadow: 0 18px 48px rgba(0,0,0,0.55); }
+        .story-media img, .story-media iframe { display: block; width: 100%; }
+        .story-media img { object-fit: contain; max-height: 70vh; }
+        .story-media iframe { height: clamp(280px, 65vh, 760px); border: none; }
+        .story-media .caption { padding: 12px 16px; color: #d1d5db; font-size: 0.95rem; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); }
 
         /* Timeline bar visible again */
         .timeline-wrapper { display: flex; height: auto; min-height: 0; align-items: flex-end; }
@@ -409,6 +418,11 @@
                 }
                 return true;
             });
+        }
+        function setMapFadeState(isFaded) {
+            const mapEl = document.getElementById('map');
+            document.body.classList.toggle('media-step-active', !!isFaded);
+            if (mapEl) mapEl.classList.toggle('map-faded', !!isFaded);
         }
 
         // =============================================================================
@@ -1678,10 +1692,12 @@
                 const stepEl = document.createElement('div');
                 stepEl.className = 'step';
                 stepEl.dataset.step = step.id;
+                if (step.media) stepEl.dataset.mediaType = step.media.type || 'media';
                 const wrapper = document.createElement('div');
                 wrapper.className = 'step-inner-wrapper';
                 const content = document.createElement('div');
                 content.className = 'step-content';
+                if (step.media) content.classList.add('media-step');
                 const title = document.createElement('h3');
                 title.className = 'text-2xl font-bold text-blue-500 mb-4';
                 title.innerText = step.title || '';
@@ -1690,6 +1706,33 @@
                 body.innerText = step.body || '';
                 content.appendChild(title);
                 content.appendChild(body);
+                if (step.media && step.media.src) {
+                    const mediaWrapper = document.createElement('div');
+                    mediaWrapper.className = 'story-media mt-4';
+                    const mediaType = step.media.type || 'image';
+                    if (mediaType === 'iframe' || mediaType === 'embed') {
+                        const frame = document.createElement('iframe');
+                        frame.src = step.media.src;
+                        frame.title = step.media.title || step.title || 'Embedded content';
+                        frame.loading = 'lazy';
+                        frame.referrerPolicy = 'no-referrer';
+                        frame.allowFullscreen = true;
+                        mediaWrapper.appendChild(frame);
+                    } else {
+                        const img = document.createElement('img');
+                        img.src = step.media.src;
+                        img.alt = step.media.alt || step.title || 'Story image';
+                        img.loading = 'lazy';
+                        mediaWrapper.appendChild(img);
+                    }
+                    if (step.media.caption) {
+                        const caption = document.createElement('div');
+                        caption.className = 'caption';
+                        caption.innerText = step.media.caption;
+                        mediaWrapper.appendChild(caption);
+                    }
+                    content.appendChild(mediaWrapper);
+                }
                 wrapper.appendChild(content);
                 stepEl.appendChild(wrapper);
                 target.appendChild(stepEl);
@@ -1955,6 +1998,11 @@
             if (!stepConfig) return;
             currentStoryStep = stepConfig.id;
             activeLabelConfigs = stepConfig.labels || [];
+            const mediaCfg = stepConfig.media || null;
+            const isMediaStep = !!mediaCfg;
+            const fadeMap = isMediaStep && mediaCfg.fadeMap !== false;
+            const holdMapView = isMediaStep && mediaCfg.keepView !== false;
+            setMapFadeState(fadeMap);
 
             const rainMode = stepConfig.rainMode || stepConfig.mode;
             if (rainMode === 'hourly') state.mode = 'daily';
@@ -1992,7 +2040,8 @@
                 setTimeline(tl.start, tl.end, { animate: tl.animate, snapToStart: tl.snapToStart, step: stepConfig.id });
             }
 
-            fitToStepBounds(stepConfig.bounds);
+            const shouldFitBounds = Array.isArray(stepConfig.bounds) && stepConfig.bounds.length && !holdMapView;
+            if (shouldFitBounds) fitToStepBounds(stepConfig.bounds);
             updateView();
         }
 
