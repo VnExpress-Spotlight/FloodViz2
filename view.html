@@ -1,0 +1,2689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng điều khiển mưa & mực nước</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@9.1.0/ol.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #1a1a1a; color: #e5e5e5; overflow: hidden; }
+        
+        /* --- Map & Layout --- */
+        #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; background: #222; }
+
+        /* --- Custom Slider Styling --- */
+        .range-container { position: relative; width: 100%; height: 20px; display: flex; align-items: center; }
+        .range-track { position: absolute; top: 50%; transform: translateY(-50%); left: 0; width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; z-index: 1; }
+        .range-fill { position: absolute; top: 50%; transform: translateY(-50%); height: 4px; background: #3b82f6; z-index: 2; pointer-events: none; }
+        
+        input[type=range] { -webkit-appearance: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: transparent; pointer-events: none; z-index: 5; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; pointer-events: auto; height: 18px; width: 18px; border-radius: 50%; cursor: pointer; margin-top: 1px; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        input[type=range]:focus { outline: none; }
+        
+        #slider-start::-webkit-slider-thumb { background: #9ca3af; border: 2px solid #fff; z-index: 4; }
+        #slider-end::-webkit-slider-thumb { background: #fbbf24; border: 2px solid #fff; z-index: 6; width: 20px; height: 20px; }
+        /* Reset styling for UI range sliders in panels */
+        #opacity-rain, #opacity-hydro { 
+            position: static; pointer-events: auto; z-index: 1; height: 6px; 
+            background: linear-gradient(to right, #0ea5e9, #1d4ed8); 
+            border-radius: 9999px;
+        }
+        #opacity-rain::-webkit-slider-thumb, #opacity-hydro::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            background: #f59e0b;
+            border: 2px solid #0f172a;
+            width: 16px; height: 16px; border-radius: 50%;
+            box-shadow: 0 0 6px rgba(245, 158, 11, 0.7);
+            cursor: pointer;
+        }
+
+        /* --- UI Components --- */
+        .glass-panel { background: rgba(30, 30, 30, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        
+        /* --- Leaflet/OL Customization --- */
+        .leaflet-bar a { background-color: #333; color: #fff; border-bottom: 1px solid #444; }
+        .leaflet-container { background: #111; }
+        
+        .map-tooltip { 
+            pointer-events: none;
+            white-space: nowrap;
+            font-size: 11px;
+            background: rgba(15,23,42,0.95);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            padding: 4px 8px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+        .map-tooltip .label { font-weight: 600; color: #fff; font-size: 12px; }
+        .map-tooltip .value { color: #d1d5db; }
+        .chart-tooltip {
+            position: absolute;
+            background: rgba(15,23,42,0.95);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #e5e7eb;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            pointer-events: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            z-index: 10;
+            white-space: nowrap;
+        }
+        .chart-tooltip.visible { opacity: 1; }
+        
+        /* --- D3 Chart Styling --- */
+        #chart-container { position: relative; height: 60px; width: 100%; margin-bottom: 0px; }
+        .chart-area { fill: url(#chartGradient); opacity: 0.6; stroke: #60a5fa; stroke-width: 1.5px; }
+        .chart-selection-rect { fill: #3b82f6; opacity: 0.2; }
+        .chart-cursor { stroke: #fbbf24; stroke-width: 2px; stroke-dasharray: 4 2; opacity: 0.8; }
+        
+        .popup-chart path { fill: #60a5fa; fill-opacity: 0.3; stroke: #60a5fa; stroke-width: 2px; }
+        .popup-chart .domain, .popup-chart .tick line { stroke: #555; }
+        .popup-chart .tick text { fill: #999; font-size: 9px; }
+        .popup-cursor-line { stroke: #fbbf24; stroke-width: 1.5px; stroke-dasharray: 3 2; opacity: 1; transition: x1 0.05s linear, x2 0.05s linear; }
+
+        #pinned-panel {
+            position: absolute; top: 1rem; right: 1rem; width: 18rem;
+            display: flex; flex-direction: column; gap: 0.5rem;
+            z-index: 40; pointer-events: auto; align-items: center;
+        }
+        #pinned-panel > div { pointer-events: auto; }
+        #pinned-panel-header, #mobile-pinned-toggle, #mobile-pinned-backdrop { display: none; }
+        .current-time-label { font-weight: 800; }
+
+        /* --- Story Modal CSS --- */
+        .story-modal-open { overflow: hidden; }
+        .json-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+        .json-scroll::-webkit-scrollbar-track { background: #f1f5f9; }
+        .json-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .json-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .bounds-handle { transition: transform 0.1s; }
+        .bounds-handle:hover { transform: scale(1.2); }
+        .tab-btn.active .icon-box { background-color: #1e293b; color: white; }
+        .tab-btn.active span { color: #0f172a; font-weight: 700; }
+        #smap-target .ol-viewport { border-radius: 0.5rem; }
+        /* Preview mobile zone band (positioned dynamically within bounds box) */
+        #preview-mobile-zone { position: absolute; display: none; border-left: 1px dashed rgba(34,197,94,0.4); border-right: 1px dashed rgba(34,197,94,0.4); background: rgba(34,197,94,0.06); align-items: start; justify-content: center; pointer-events: none; }
+        #preview-mobile-zone span { margin-top: 4px; padding: 2px 6px; font-size: 10px; font-weight: 700; color: #16a34a; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(34,197,94,0.5); border-radius: 9999px; }
+        
+        @media (max-width: 640px) {
+            #pinned-panel { display: none; }
+            #chart-container, #timeline-chart, .timeline-chart-label { display: none; }
+            .timeline-wrapper { height: 150px; padding-bottom: 3rem; padding-left: 1rem; padding-right: 1rem; align-items: center; }
+            .timeline-wrapper .glass-panel { width: 100%; max-width: 640px; margin: 0 auto; }
+            #mobile-pinned-preview { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.25rem; width: 100%; }
+            #mobile-pinned-preview .preview-card { width: 100%; background: rgba(30,30,30,0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.75rem; padding: 0.5rem; box-shadow: 0 12px 25px rgba(0,0,0,0.35); }
+            #mobile-pinned-preview .preview-card h4 { font-size: 0.75rem; color: #fff; margin-bottom: 0.25rem; }
+            #mobile-pinned-preview .preview-chart { height: 80px; max-height: 80px; width: 100%; max-width: 100%; overflow: hidden; }
+            .current-time-wrap { display: block; }
+            .current-time-label { margin: 0 0 2px; display: block; font-size: 9px; }
+            .current-time-values { margin-top: 0; }
+            #display-date { font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <div class="absolute top-4 left-4 z-50 flex flex-col gap-2">
+        <button id="layer-toggle-btn" class="glass-panel px-3 py-2 rounded-lg shadow-lg text-xs font-semibold flex items-center gap-2 hover:bg-white/10 transition">
+            <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/></svg>
+            Lớp dữ liệu
+        </button>
+        
+        <button id="legend-toggle-btn" class="glass-panel px-3 py-2 rounded-lg shadow-lg text-xs font-semibold flex items-center gap-2 hover:bg-white/10 transition">
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 6h.01M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 00-2 2z"/></svg>
+            Chú giải
+        </button>
+
+        <button id="filter-toggle-btn" class="glass-panel px-3 py-2 rounded-lg shadow-lg text-xs font-semibold flex items-center gap-2 hover:bg-white/10 transition">
+            <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h18M4 9h16M6 14h12M9 19h6"/></svg>
+            Bộ lọc
+        </button>
+
+        <button id="story-toggle-btn" class="glass-panel px-3 py-2 rounded-lg shadow-lg text-xs font-semibold flex items-center gap-2 hover:bg-white/10 transition text-amber-400 border-amber-500/30">
+            <i data-lucide="file-pen-line" class="w-4 h-4"></i>
+            Tạo Story
+        </button>
+
+        <div class="glass-panel px-4 py-3 rounded-lg shadow-2xl w-64 hidden" id="filter-panel">
+            <div class="text-[10px] uppercase tracking-wider text-gray-400 mb-2">Bộ lọc</div>
+            <div class="flex flex-col gap-2 text-sm">
+                <label class="text-xs text-gray-300">Tỉnh (dữ liệu mưa)</label>
+                <div id="filter-province-list" class="max-h-32 overflow-y-auto space-y-1"></div>
+                <label class="text-xs text-gray-300 mt-2">Sông/Lưu vực (trạm & hồ)</label>
+                <div id="filter-river-list" class="max-h-32 overflow-y-auto space-y-1"></div>
+            </div>
+            <div class="flex justify-end gap-2 mt-3">
+                <button id="filter-reset" class="px-3 py-1 rounded bg-gray-700 text-white text-xs font-semibold hover:bg-gray-600 transition">Đặt lại</button>
+                <button id="filter-apply" class="px-4 py-1 rounded bg-blue-600 text-white text-xs font-semibold hover:bg-blue-500 transition">Áp dụng</button>
+            </div>
+        </div>
+
+        <div id="legend-panel" class="glass-panel px-4 py-3 rounded-lg shadow-2xl w-64 hidden">
+            <div id="legend-rain" class="hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="text-[10px] uppercase tracking-wider text-gray-400">Mưa</div>
+                    <span id="legend-mode-label" class="text-[11px] text-emerald-300 font-semibold">Theo giờ</span>
+                </div>
+                <div class="relative h-2 rounded-full mb-1" id="legend-gradient">
+                    <div id="legend-hover-marker" class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-white ring-2 ring-black opacity-0 transition-opacity"></div>
+                </div>
+                <div class="flex justify-between text-[11px] text-gray-400">
+                    <span id="legend-min-val">Thấp</span><span id="legend-max-val">Cao</span>
+                </div>
+            </div>
+            <div id="legend-lakes" class="mt-3 hidden"><div class="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Hồ chứa</div><div class="flex items-center gap-2 text-xs"><div class="w-3 h-3 border border-sky-300"></div><span>Tỷ lệ đầy</span></div></div>
+            <div id="legend-stations" class="mt-3 hidden"><div class="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Trạm sông</div><div class="flex items-center gap-2 text-xs"><div class="w-3 h-3 rounded-full border border-amber-400"></div><span>Mức cảnh báo</span></div></div>
+        </div>
+
+        <div id="layer-panel" class="glass-panel px-4 py-3 rounded-lg shadow-2xl w-64 hidden">
+            <div class="text-[10px] uppercase tracking-wider text-gray-400 mb-2">Lớp phủ</div>
+            <div class="space-y-2 text-sm">
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input id="toggle-lakes" type="checkbox" class="accent-blue-500" checked>
+                    <span class="text-gray-200">Hồ chứa</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input id="toggle-stations" type="checkbox" class="accent-blue-500" checked>
+                    <span class="text-gray-200">Trạm sông</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer select-none">
+                    <input id="toggle-rivers" type="checkbox" class="accent-blue-500" checked>
+                    <span class="text-gray-200">Hệ thống sông</span>
+                </label>
+            </div>
+            <div class="mt-3 border-t border-gray-700 pt-2 space-y-2 text-xs text-gray-200">
+                <div class="text-[10px] uppercase tracking-wider text-gray-400">Độ mờ</div>
+                <label class="flex items-center gap-2">Mưa <input id="opacity-rain" type="range" min="20" max="100" value="75" class="flex-1 accent-blue-500"></label>
+                <label class="flex items-center gap-2">Sông <input id="opacity-hydro" type="range" min="10" max="100" value="90" class="flex-1 accent-blue-500"></label>
+            </div>
+            <div class="mt-3 border-t border-gray-700 pt-2">
+                <div class="text-[10px] uppercase tracking-wider text-gray-400 mb-2">Chế độ mưa</div>
+                <div class="flex flex-col gap-1 text-sm">
+                    <select id="slayer-rainmode" class="w-full px-3 py-1 rounded bg-slate-800 border border-slate-700 text-gray-100" onchange="updateStoryLayer('rainMode', this.value)">
+                        <option value="none">Tắt</option>
+                        <option value="daily">Theo giờ</option>
+                        <option value="accumulated">Tích lũy</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="pinned-panel">
+        <div id="pinned-list" class="flex flex-col gap-3 pointer-events-auto"></div>
+    </div>
+
+    <div class="absolute bottom-0 left-0 right-0 h-[180px] bg-gradient-to-t from-black via-[#1a1a1a] to-transparent z-40 flex flex-col justify-end pb-6 px-6 pointer-events-none timeline-wrapper">
+        <div class="glass-panel w-full rounded-xl p-4 pointer-events-auto flex flex-col gap-1">
+            <div class="flex items-center justify-between mb-1">
+                <div class="flex items-center gap-2">
+                    <div class="current-time-wrap">
+                        <div class="flex items-baseline gap-2 current-time-values">
+                            <div id="display-date" class="text-xl font-bold text-white font-mono">...</div>
+                            <div id="start-date-display" class="text-xs text-gray-400 font-mono hidden"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-[10px] text-gray-400 tracking-wider font-normal timeline-chart-label">Lượng mưa trung bình</div>
+            </div>
+
+            <div id="mobile-pinned-preview"></div>
+
+            <div id="chart-container">
+                <svg id="timeline-chart" width="100%" height="100%"></svg>
+            </div>
+
+            <div class="range-container">
+                <div class="range-track"></div>
+                <div class="range-fill" id="range-fill"></div>
+                <input type="range" id="slider-start" min="0" max="100" value="0" step="1">
+                <input type="range" id="slider-end" min="0" max="100" value="0" step="1">
+            </div>
+            
+            <div class="flex justify-between text-[10px] text-gray-500 font-mono px-1 mt-1" id="timeline-ticks"></div>
+        </div>
+    </div>
+
+    <div id="story-modal" class="fixed inset-0 z-[1000] hidden">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="toggleStoryModal()"></div>
+        
+        <div class="absolute inset-4 md:inset-10 bg-white rounded-xl shadow-2xl overflow-hidden flex flex-col text-slate-800">
+            <header class="bg-white border-b border-gray-200 px-6 py-3 flex justify-between items-center shadow-sm z-10">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="map" class="text-blue-600"></i>
+                    <h1 class="font-bold text-lg">Story Creator</h1>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="copyStoryJson()" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                        <span id="copy-text">Copy JSON</span>
+                    </button>
+                    <button onclick="triggerStoryJsonUpload()" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                        <i data-lucide="upload" class="w-4 h-4"></i>
+                        Load JSON
+                    </button>
+                    <input id="story-json-file" type="file" accept="application/json" class="hidden" onchange="handleStoryJsonFile(event)">
+                    <button onclick="toggleStoryPreview()" class="md:hidden flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                        Preview
+                    </button>
+                    <button onclick="toggleStoryModal()" class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-1 flex overflow-hidden">
+                <nav class="w-20 bg-slate-900 flex flex-col items-center py-6 gap-6 flex-shrink-0 z-20">
+                    <button onclick="switchStoryTab('general')" class="tab-btn active text-slate-400 hover:text-white flex flex-col items-center gap-1 transition-colors group" data-tab="general">
+                        <div class="p-2 rounded-lg icon-box group-hover:bg-slate-800 transition-colors"><i data-lucide="settings"></i></div>
+                        <span class="text-[10px] font-medium group-hover:text-white">General</span>
+                    </button>
+                    <button onclick="switchStoryTab('layers')" class="tab-btn text-slate-400 hover:text-white flex flex-col items-center gap-1 transition-colors group" data-tab="layers">
+                        <div class="p-2 rounded-lg icon-box group-hover:bg-slate-800 transition-colors"><i data-lucide="layers"></i></div>
+                        <span class="text-[10px] font-medium group-hover:text-white">Layers</span>
+                    </button>
+                    <button onclick="switchStoryTab('map')" class="tab-btn text-slate-400 hover:text-white flex flex-col items-center gap-1 transition-colors group" data-tab="map">
+                        <div class="p-2 rounded-lg icon-box group-hover:bg-slate-800 transition-colors"><i data-lucide="maximize"></i></div>
+                        <span class="text-[10px] font-medium group-hover:text-white">Bounds</span>
+                    </button>
+                </nav>
+
+                <section class="flex-1 bg-white overflow-y-auto p-6 relative">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-semibold text-gray-700">Slides</span>
+                            <div id="slide-chips" class="flex flex-wrap gap-2"></div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="addSlide()" class="px-3 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors flex items-center gap-1">
+                                <i data-lucide="plus" class="w-4 h-4"></i> Thêm slide
+                            </button>
+                            <button onclick="deleteSlide()" class="px-3 py-1.5 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-md transition-colors flex items-center gap-1">
+                                <i data-lucide="trash" class="w-4 h-4"></i> Xóa
+                            </button>
+                        </div>
+                    </div>
+                    <div id="stab-general" class="story-tab-content max-w-2xl mx-auto space-y-6">
+                        <h2 class="text-xl font-bold border-b pb-2 mb-4">General Information</h2>
+                        <div class="grid gap-4">
+                            <div><label class="block text-sm font-medium text-gray-700 mb-1">ID</label><input type="number" id="sinp-id" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none" oninput="updateStoryField('id', this.value, 'number')"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-1">Title</label><input type="text" id="sinp-title" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none" oninput="updateStoryField('title', this.value)"></div>
+                            <div><label class="block text-sm font-medium text-gray-700 mb-1">Body Text</label><textarea id="sinp-body" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 outline-none" oninput="updateStoryField('body', this.value)"></textarea></div>
+                        </div>
+                        <div class="mt-6 border-t pt-4 space-y-4">
+                            <h2 class="text-xl font-bold">Timeline</h2>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div><label class="block text-sm font-medium text-gray-700 mb-1">Start Time</label><input type="datetime-local" id="sinp-time-start" class="w-full px-3 py-2 border border-gray-300 rounded-md" oninput="updateStoryTimeline('start', this.value)"></div>
+                                <div><label class="block text-sm font-medium text-gray-700 mb-1">End Time</label><input type="datetime-local" id="sinp-time-end" class="w-full px-3 py-2 border border-gray-300 rounded-md" oninput="updateStoryTimeline('end', this.value)"></div>
+                            </div>
+                            <div class="space-y-3 pt-4 border-t">
+                                <label class="flex items-center justify-between"><span class="text-sm font-medium text-gray-700">Animate Timeline</span><input type="checkbox" id="sinp-animate" class="accent-blue-600 w-5 h-5" onchange="updateStoryTimeline('animate', this.checked)"></label>
+                                <label class="flex items-center justify-between"><span class="text-sm font-medium text-gray-700">Snap to Start</span><input type="checkbox" id="sinp-snap" class="accent-blue-600 w-5 h-5" onchange="updateStoryTimeline('snapToStart', this.checked)"></label>
+                                <label class="flex items-center justify-between"><span class="text-sm font-medium text-gray-700">Show Mini Chart</span><input type="checkbox" id="sinp-miniChart" class="accent-blue-600 w-5 h-5" onchange="updateStoryField('timelineMiniChart', this.checked)"></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="stab-map" class="story-tab-content hidden max-w-4xl mx-auto h-full flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold">Map Viewport</h2>
+                            <div class="flex items-center gap-3 bg-white px-3 py-1 rounded-full border shadow-sm">
+                                <span class="text-xs font-medium text-gray-500">ASPECT RATIO</span>
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" id="slock-ratio" checked class="accent-blue-600 w-4 h-4">
+                                    <span class="text-sm flex items-center gap-1"><i data-lucide="monitor" class="w-4 h-4"></i> PC (16:9)</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 bg-slate-50 border rounded-lg p-4 flex flex-col gap-4 h-96">
+                            <div class="relative w-full h-full bg-gray-100 rounded border border-blue-200 shadow-inner overflow-hidden select-none" id="smap-wrapper">
+                                <div id="smap-target" class="absolute inset-0 z-0"></div>
+                                
+                                <div id="sbounds-box" class="absolute z-10 border-2 border-green-500 bg-green-500/10 cursor-move box-border" style="left: 20%; top: 25%; width: 355px; height: 200px;"> 
+                                    <div class="absolute -top-7 left-0 bg-green-600 text-white text-[10px] px-2 py-0.5 rounded shadow font-mono whitespace-nowrap">VIEWPORT</div>
+                                    
+                                    <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[31.6%] border-x border-dashed border-green-400/50 pointer-events-none flex items-center justify-center bg-green-500/5">
+                                        <span class="text-[9px] text-green-700 font-mono bg-white/60 px-1 rounded whitespace-nowrap">Mobile Zone</span>
+                                    </div>
+                                    
+                                    <div id="sresize-handle" class="bounds-handle absolute -bottom-2.5 -right-2.5 w-6 h-6 bg-white border-2 border-green-600 rounded-full cursor-nwse-resize flex items-center justify-center shadow-md z-20">
+                                        <i data-lucide="maximize-2" class="w-3 h-3 text-green-600"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4 text-xs font-mono bg-slate-800 text-green-400 p-3 rounded-md flex-shrink-0">
+                                <div><span class="text-slate-400 block mb-1">MIN (Lon, Lat)</span><span id="scoord-min">0, 0</span></div>
+                                <div><span class="text-slate-400 block mb-1">MAX (Lon, Lat)</span><span id="scoord-max">0, 0</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+            <div id="stab-layers" class="story-tab-content hidden max-w-2xl mx-auto space-y-6">
+                <h2 class="text-xl font-bold border-b pb-2 mb-4">Layers & Filters</h2>
+                <div class="space-y-6">
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-3">Visible Layers</h3>
+                                <div class="space-y-3">
+                                    <label class="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"><span class="text-sm font-medium">Rivers</span><input type="checkbox" id="slayer-river" class="accent-blue-600 w-5 h-5" onchange="updateStoryLayer('river', this.checked)"></label>
+                                    <label class="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"><span class="text-sm font-medium">Stations</span><input type="checkbox" id="slayer-stations" class="accent-blue-600 w-5 h-5" onchange="updateStoryLayer('stations', this.checked)"></label>
+                                    <label class="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"><span class="text-sm font-medium">Lakes</span><input type="checkbox" id="slayer-lakes" class="accent-blue-600 w-5 h-5" onchange="updateStoryLayer('lakes', this.checked)"></label>
+                                    <label class="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"><span class="text-sm font-medium">Rain Heatmap</span><input type="checkbox" id="slayer-rain" class="accent-blue-600 w-5 h-5" onchange="updateStoryLayer('rain', this.checked)"></label>
+                                </div>
+                            </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-3">Opacity</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div><label class="block text-xs font-medium text-gray-600 mb-1">Rain</label><input type="number" min="0" max="1" step="0.05" id="sop-rain" class="w-full px-2 py-1 border rounded" oninput="updateStoryOpacity('rain', this.value)"></div>
+                            <div><label class="block text-xs font-medium text-gray-600 mb-1">Hydrology</label><input type="number" min="0" max="1" step="0.05" id="sop-hydro" class="w-full px-2 py-1 border rounded" oninput="updateStoryOpacity('hydro', this.value)"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-3">Rain Mode</h3>
+                        <select id="slayer-rainmode" class="w-full px-3 py-2 rounded bg-slate-800 border border-slate-700 text-gray-100" onchange="updateStoryLayer('rainMode', this.value)">
+                            <option value="none">Tắt</option>
+                            <option value="daily">Theo giờ</option>
+                            <option value="accumulated">Tích lũy</option>
+                        </select>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-3">Filters</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-xs text-gray-600 mb-1">Provinces (rain)</p>
+                                <div id="sfilter-provinces" class="border rounded p-2 max-h-40 overflow-y-auto space-y-1 bg-slate-50"></div>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-600 mb-1">Basins (rivers/stations/lakes)</p>
+                                <div id="sfilter-basins" class="border rounded p-2 max-h-40 overflow-y-auto space-y-1 bg-slate-50"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold text-gray-500 uppercase mb-3">Labels</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-xs text-gray-600 mb-1">Stations</p>
+                                <div id="slabels-stations" class="border rounded p-2 max-h-40 overflow-y-auto space-y-1 bg-slate-50"></div>
+                            </div>
+                            <div>
+                                <p class="text-xs text-gray-600 mb-1">Lakes</p>
+                                <div id="slabels-lakes" class="border rounded p-2 max-h-40 overflow-y-auto space-y-1 bg-slate-50"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                </section>
+
+                <aside id="story-preview-panel" class="w-full md:w-1/3 bg-slate-900 text-slate-300 flex flex-col border-l border-slate-700 absolute md:static inset-0 transform translate-x-full md:translate-x-0 transition-transform duration-300 z-30">
+                    <div class="flex justify-between items-center p-3 border-b border-slate-800 bg-slate-900">
+                        <div class="flex items-center gap-2 text-slate-200 text-sm font-semibold">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                            <span>Preview</span>
+                        </div>
+                        <button onclick="toggleStoryPreview()" class="md:hidden text-slate-400 hover:text-white"><i data-lucide="x"></i></button>
+                    </div>
+
+                    <div id="view-visual" class="flex-1 relative bg-slate-800 overflow-hidden">
+                        <div id="preview-map" class="absolute inset-0"></div>
+                        <div class="absolute inset-0 pointer-events-none" id="preview-overlay">
+                            <div id="preview-mobile-zone"><span>Mobile Zone</span></div>
+                            <div id="preview-layer-badges" class="absolute top-3 left-3 flex flex-col gap-2"></div>
+                            <div id="preview-label-markers" class="absolute inset-0 pointer-events-none"></div>
+                        </div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent pointer-events-none"></div>
+                        <div class="absolute inset-0 p-6 flex items-end justify-center pointer-events-none">
+                            <div class="glass-panel w-full max-w-xl p-5 rounded-2xl border-l-4 border-blue-500 shadow-2xl backdrop-blur-xl relative overflow-hidden pointer-events-auto">
+                                <div class="absolute -right-4 -top-4 w-20 h-20 bg-blue-500 rounded-full blur-3xl opacity-20"></div>
+                                <h3 id="preview-title" class="text-lg font-bold text-white relative z-10 mb-2 leading-tight text-center">Title Here</h3>
+                                <p id="preview-body" class="text-sm text-gray-300 relative z-10 leading-relaxed text-center">Body text goes here...</p>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/ol@9.1.0/dist/ol.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+
+    <script>
+        // =============================================================================
+        // 1. CONFIGURATION & CONSTANTS
+        // =============================================================================
+        const CONFIG = {
+            startView: [11.5, 108.5], 
+            zoomLevel: 9,
+            colors: { low: '#06b6d4', mid: '#22c55e', high: '#ef4444', extreme: '#7f1d1d' }
+        };
+
+        // Filter Range Definition
+        const FILTER_RANGE = {
+            start: new Date("2025-11-15T00:00:00"),
+            end: new Date("2025-11-21T23:00:00")
+        };
+        const COLORS = { blue: '#0ea5e9', green: '#22c55e', yellow: '#fbbf24', red: '#ef4444', purple: '#a855f7' };
+        
+        const MARKER_MAX_RATIO = 150;
+        const MARKER_MAX_WARNING = 4;
+        const CIRCLE_MARKER_RADIUS = 4;
+
+        const ALLOWED_PROVINCES = [
+            "TP Huế", "TP Đà Nẵng", "tỉnh Quảng Nam", "tỉnh Quảng Ngãi",
+            "tỉnh Bình Định", "tỉnh Phú Yên", "tỉnh Khánh Hòa", "tỉnh Đắk Lắk", "tỉnh Gia Lai"
+        ];
+
+        const isMobileView = () => window.matchMedia('(max-width: 640px)').matches;
+
+        // =============================================================================
+        // 1.1 LOCAL CACHE HELPERS
+        // =============================================================================
+        const STORAGE_KEYS = {
+            storySlides: 'viz-story-slides',
+            uiState: 'viz-ui-state'
+        };
+        const loadCache = (key, fallback) => {
+            if (typeof localStorage === 'undefined') return fallback;
+            try {
+                const raw = localStorage.getItem(key);
+                if (!raw) return fallback;
+                const parsed = JSON.parse(raw);
+                return parsed ?? fallback;
+            } catch (err) {
+                console.warn('Cache load failed', err);
+                return fallback;
+            }
+        };
+        const saveCache = (key, value) => {
+            if (typeof localStorage === 'undefined') return;
+            try { localStorage.setItem(key, JSON.stringify(value)); }
+            catch (err) { console.warn('Cache write failed', err); }
+        };
+
+        const cachedStorySlides = loadCache(STORAGE_KEYS.storySlides, []);
+        const cachedUIState = loadCache(STORAGE_KEYS.uiState, {});
+
+        // =============================================================================
+        // 2. STATE MANAGEMENT
+        // =============================================================================
+        let state = {
+            // GIS Data
+            geoData: null,
+            riverData: null,
+            stationMeta: {},
+            dataReady: false,
+            
+            dates: [],
+            wardIds: [], 
+            wardNames: {}, 
+            wardProvinces: {},
+            
+            // Maps for fast lookup
+            dataMap: {}, 
+            accumulatedMap: {}, 
+            waterLevelMap: {}, // { date: { station_id: record } }
+            
+            wardTimeSeries: {}, 
+            timelineStats: [], 
+            
+            // Time Indices
+            startIndex: 0,
+            endIndex: 0,
+            visibleStartIndex: 0,
+            
+            isPlaying: false,
+            mode: 'accumulated', 
+            maxDaily: 60,
+            maxTotal: 300
+        };
+
+        const clampOpacity = (val, fallback) => {
+            const num = Number(val);
+            if (!Number.isFinite(num)) return fallback;
+            return Math.min(1, Math.max(0, num));
+        };
+        const cachedFilters = cachedUIState?.filters || {};
+        let layerVisibility = { rain: true, river: true, stations: true, lakes: true, ...(cachedUIState?.layerVisibility || {}) };
+        let layerOpacity = { 
+            rain: clampOpacity(cachedUIState?.layerOpacity?.rain, 0.75), 
+            hydro: clampOpacity(cachedUIState?.layerOpacity?.hydro, 0.9) 
+        };
+        let filters = { provinces: new Set(cachedFilters.provinces || []), rivers: new Set(cachedFilters.rivers || []) };
+        let rainThresholds = { p50: 0, p90: 0, p99: 0 };
+        let cachedTimelineState = cachedUIState?.timeline || null;
+        let cachedActiveSlideIndex = Number.isFinite(cachedUIState?.activeSlideIndex) ? cachedUIState.activeSlideIndex : 0;
+        
+        // Runtime Variables
+        let pendingUpdate = null;
+        let timelinePlayTimer = null;
+        let pinnedCharts = [];
+        let geoLayer, riverLayer, stationLayer, lakeLayer;
+        let chartXScale, chartYScale;
+        const lakeRatioLogs = new Set();
+        let popupCursorRegistry = [];
+        const registerPopupCursor = (entry) => {
+            popupCursorRegistry.push(entry);
+            return () => { popupCursorRegistry = popupCursorRegistry.filter(e => e !== entry); };
+        };
+        function updatePopupCursorLines() {
+            const cursorIdx = Math.max(0, state.endIndex - state.visibleStartIndex);
+            popupCursorRegistry = popupCursorRegistry.filter(entry => {
+                const node = entry.line.node();
+                if (!node || !document.body.contains(node)) return false;
+                if (!entry.dates.length) return true;
+                const cappedIdx = Math.min(cursorIdx, entry.dates.length - 1);
+                const xPos = entry.scale(entry.dates[cappedIdx]);
+                if (xPos !== undefined) entry.line.attr("x1", xPos).attr("x2", xPos);
+
+                const startIdx = Math.max(0, Math.min(entry.dates.length - 1, state.startIndex - state.visibleStartIndex));
+                const endIdx = Math.max(0, Math.min(entry.dates.length - 1, state.endIndex - state.visibleStartIndex));
+                if (entry.rect && entry.rect.node() && document.body.contains(entry.rect.node())) {
+                    const xStart = entry.scale(entry.dates[Math.min(startIdx, endIdx)]);
+                    const xEnd = entry.scale(entry.dates[Math.max(startIdx, endIdx)]);
+                    const width = Math.max(4, Math.abs(xEnd - xStart));
+                    entry.rect.attr("x", Math.min(xStart, xEnd)).attr("width", width);
+                }
+                return true;
+            });
+        }
+
+        function persistStorySlides() {
+            saveCache(STORAGE_KEYS.storySlides, storySlides);
+        }
+
+        function persistDashboardState() {
+            const payload = {
+                layerVisibility,
+                layerOpacity,
+                filters: {
+                    provinces: Array.from(filters.provinces || []),
+                    rivers: Array.from(filters.rivers || [])
+                },
+                timeline: { start: state.startIndex, end: state.endIndex },
+                activeSlideIndex
+            };
+            saveCache(STORAGE_KEYS.uiState, payload);
+        }
+
+        let persistTimer = null;
+        function schedulePersistDashboardState() {
+            if (persistTimer) return;
+            persistTimer = setTimeout(() => {
+                persistTimer = null;
+                persistDashboardState();
+            }, 150);
+        }
+
+        // =============================================================================
+        // 3. DOM ELEMENTS CACHE
+        // =============================================================================
+        const DOM = {
+            sliderStart: document.getElementById('slider-start'),
+            sliderEnd: document.getElementById('slider-end'),
+            rangeFill: document.getElementById('range-fill'),
+            chkLakes: document.getElementById('toggle-lakes'),
+            chkStations: document.getElementById('toggle-stations'),
+            chkRivers: document.getElementById('toggle-rivers'),
+            layerPanel: document.getElementById('layer-panel'),
+            layerToggleBtn: document.getElementById('layer-toggle-btn'),
+            legendToggleBtn: document.getElementById('legend-toggle-btn'),
+            legendPanel: document.getElementById('legend-panel'),
+            legendModeLabel: document.getElementById('legend-mode-label'),
+            legendGradient: document.getElementById('legend-gradient'),
+            legendLakeGradient: document.getElementById('legend-lake-gradient'),
+            legendRain: document.getElementById('legend-rain'),
+            legendLakes: document.getElementById('legend-lakes'),
+            legendStations: document.getElementById('legend-stations'),
+            legendHoverMarker: document.getElementById('legend-hover-marker'),
+            filterToggleBtn: document.getElementById('filter-toggle-btn'),
+            filterPanel: document.getElementById('filter-panel'),
+            filterProvinceList: document.getElementById('filter-province-list'),
+            filterRiverList: document.getElementById('filter-river-list'),
+            filterApplyBtn: document.getElementById('filter-apply'),
+            filterResetBtn: document.getElementById('filter-reset'),
+            pinnedList: document.getElementById('pinned-list'),
+            mobilePinnedPreview: document.getElementById('mobile-pinned-preview'),
+            rainRadios: [],
+            timelinePlayPause: document.getElementById('timeline-play-pause'),
+            playIcon: document.getElementById('play-icon'),
+            pauseIcon: document.getElementById('pause-icon'),
+            opacityRain: document.getElementById('opacity-rain'),
+            opacityHydro: document.getElementById('opacity-hydro'),
+            // Story Creator
+            storyToggleBtn: document.getElementById('story-toggle-btn'),
+            storyModal: document.getElementById('story-modal'),
+            sFilterProvinces: document.getElementById('sfilter-provinces'),
+            sFilterBasins: document.getElementById('sfilter-basins'),
+            sLabelsStations: document.getElementById('slabels-stations'),
+            sLabelsLakes: document.getElementById('slabels-lakes'),
+        };
+
+        // Sync initial UI controls with cached state
+        if (DOM.chkLakes) DOM.chkLakes.checked = !!layerVisibility.lakes;
+        if (DOM.chkStations) DOM.chkStations.checked = !!layerVisibility.stations;
+        if (DOM.chkRivers) DOM.chkRivers.checked = !!layerVisibility.river;
+        if (DOM.opacityRain) DOM.opacityRain.value = Math.round(layerOpacity.rain * 100);
+        if (DOM.opacityHydro) DOM.opacityHydro.value = Math.round(layerOpacity.hydro * 100);
+
+        const defaultControls = (ol.control && typeof ol.control.defaults === 'function') 
+            ? ol.control.defaults({ attribution: false })
+            : undefined;
+        const map = new ol.Map({
+            target: 'map',
+            controls: defaultControls,
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.XYZ({
+                        url: 'https://mt0.google.com/vt/lyrs=s&hl=vi&x={x}&y={y}&z={z}'
+                    }),
+                    zIndex: 100
+                }),
+                new ol.layer.Tile({
+                    source: new ol.source.XYZ({
+                        url: 'https://vndms.dmptc.gov.vn/VNDark/{z}/{x}/{y}.png'
+                    }),
+                    opacity: 0.7,
+                    zIndex: 200 // Place labels on top of satellite, but below data
+                })
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([CONFIG.startView[1], CONFIG.startView[0]]),
+                zoom: CONFIG.zoomLevel,
+                minZoom: 5,
+                maxZoom: 20
+            })
+        });
+
+        const popupElement = document.createElement('div');
+        popupElement.id = 'ol-popup';
+        popupElement.className = 'glass-panel rounded-lg shadow-lg text-white';
+        document.body.appendChild(popupElement);
+        const popupOverlay = new ol.Overlay({
+            element: popupElement,
+            positioning: 'bottom-center',
+            offset: [0, -10],
+            stopEvent: true,
+            autoPan: { animation: { duration: 250 } }
+        });
+        map.addOverlay(popupOverlay);
+
+        const hoverTooltipElement = document.createElement('div');
+        hoverTooltipElement.className = 'map-tooltip hidden text-xs';
+        const hoverTooltipOverlay = new ol.Overlay({
+            element: hoverTooltipElement,
+            positioning: 'bottom-center',
+            offset: [0, -12],
+            stopEvent: false
+        });
+        map.addOverlay(hoverTooltipOverlay);
+
+        function showHoverTooltip(html, coordinate) {
+            hoverTooltipElement.innerHTML = html;
+            hoverTooltipElement.classList.remove('hidden');
+            hoverTooltipOverlay.setPosition(coordinate);
+        }
+
+        function hideHoverTooltip() {
+            hoverTooltipOverlay.setPosition(undefined);
+            hoverTooltipElement.classList.add('hidden');
+        }
+
+        map.on('singleclick', (evt) => {
+            const feature = map.forEachFeatureAtPixel(evt.pixel, f => f);
+            if (!feature) { 
+                popupOverlay.setPosition(undefined); 
+                popupElement.dataset.type = '';
+                popupElement.dataset.id = '';
+                popupElement.dataset.coord = '';
+                return; 
+            }
+            if (feature.get('stationType')) openStationPopup(feature, evt.coordinate);
+            else if (feature.get('_type') === 'ward') openWardPopup(feature.get('_uniqueId'), evt.coordinate);
+        });
+
+        map.on('pointermove', (evt) => {
+            if (evt.dragging) return;
+            const feature = map.forEachFeatureAtPixel(evt.pixel, f => f);
+            const targetEl = map.getTargetElement();
+            if (targetEl) targetEl.style.cursor = feature ? 'pointer' : '';
+            let tooltipHandled = false;
+
+            if (feature && feature.get('_type') === 'ward') {
+                const uniqueId = feature.get('_uniqueId');
+                const val = state.mode === 'daily'
+                    ? state.dataMap[state.endIndex]?.[uniqueId] || 0
+                    : Math.max(0, (state.accumulatedMap[state.endIndex]?.[uniqueId] || 0) - (state.accumulatedMap[state.startIndex - 1]?.[uniqueId] || 0));
+                updateLegendHover(val);
+                showHoverTooltip(buildWardTooltipContent(uniqueId, val), evt.coordinate);
+                tooltipHandled = true;
+            } else {
+                updateLegendHover(null);
+            }
+
+            if (!tooltipHandled && feature && feature.get('stationType')) {
+                const sid = feature.get('stationId');
+                const record = state.waterLevelMap[state.endIndex]?.[sid];
+                showHoverTooltip(buildStationTooltipContent(feature, record), evt.coordinate);
+                tooltipHandled = true;
+            }
+
+            if (!tooltipHandled) hideHoverTooltip();
+        });
+
+        const mapViewport = map.getViewport();
+        if (mapViewport) {
+            mapViewport.addEventListener('mouseleave', () => {
+                hideHoverTooltip();
+                updateLegendHover(null);
+                const targetEl = map.getTargetElement();
+                if (targetEl) targetEl.style.cursor = '';
+            });
+        }
+
+        function showPopup(contentEl, coordinate) {
+            popupElement.innerHTML = '';
+            popupElement.appendChild(contentEl);
+            popupOverlay.setPosition(coordinate);
+        }
+
+        function buildWardTooltipContent(uniqueId, value) {
+            const name = state.wardNames[uniqueId] || 'Khu vực';
+            const province = state.wardProvinces[uniqueId];
+            const val = Number.isFinite(value) ? `${value.toFixed(1)} mm` : 'Không có số liệu mưa';
+            const modeLabel = state.mode === 'daily' ? 'Mưa theo giờ' : 'Mưa tích lũy';
+            const provinceLine = province ? `<div class="value">${province}</div>` : '';
+            return `<div class="label">${name}</div>${provinceLine}<div class="value">${modeLabel}: ${val}</div>`;
+        }
+
+        function buildStationTooltipContent(feature, record) {
+            const stationName = feature.get('stationLabel') || 'Trạm';
+            const basin = feature.get('riverName');
+            const type = feature.get('stationType');
+            let valueLine = 'Chưa có dữ liệu mới';
+            if (type === 'lake') {
+                if (Number.isFinite(record?.ratio)) valueLine = `Đầy: ${record.ratio.toFixed(1)}%`;
+                else if (Number.isFinite(record?.capacity)) valueLine = `Dung tích: ${record.capacity}`;
+            } else if (Number.isFinite(record?.value)) {
+                valueLine = `Mực nước: ${record.value.toFixed(2)} m`;
+            }
+            const status = type === 'lake' ? getLakeStatus(record || {}) : getRiverStatus(record || {});
+            const statusLine = status?.label ? `<div class="value">${status.label}</div>` : '';
+            const basinLine = basin ? `<div class="value">Sông ${basin}</div>` : '';
+            return `<div class="label">${stationName}</div>${basinLine}<div class="value">${valueLine}</div>${statusLine}`;
+        }
+
+        // =============================================================================
+        // 4. UTILITY FUNCTIONS
+        // =============================================================================
+        const normalizeProvince = (name) => {
+            if (!name) return null;
+            return name.trim().toLowerCase().replace(/^tỉnh\s+/, '').replace(/^tp\.?\s*/, '').replace(/^thành phố\s+/, '');
+        };
+        const allowedProvinceSet = new Set(ALLOWED_PROVINCES.map(normalizeProvince));
+        const isAllowedProvince = (name) => {
+            const normalized = normalizeProvince(name);
+            return normalized ? allowedProvinceSet.has(normalized) : false;
+        };
+        const provinceFromWardId = (wardId) => {
+            if (!wardId || typeof wardId !== "string") return null;
+            const chunk = wardId.split("|")[0];
+            return chunk ? normalizeProvince(chunk) : null;
+        };
+        function inferStationType(typeStr) {
+            if (!typeStr) return 'river';
+            const normalized = typeStr.toLowerCase();
+            if (normalized.includes('lake') || normalized.includes('hồ') || normalized.includes('ho')) return 'lake';
+            return 'river';
+        }
+        function normalizeTrendLabel(text) {
+            if (!text) return '';
+            return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').trim();
+        }
+        function normalizeSimple(text) {
+            return (text || '').toString().trim().toLowerCase();
+        }
+        function normalizeNoAccent(text) {
+            return (text || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+        }
+        function applyOpacity(color, opacity) {
+            const c = d3.color(color);
+            if (!c) return color;
+            c.opacity = (c.opacity || 1) * opacity;
+            return c.formatRgb();
+        }
+        function matchesRiverFilter(name) {
+            if (!filters.rivers || filters.rivers.size === 0) return true;
+            const norm = normalizeSimple(name);
+            if (!norm) return false;
+            return Array.from(filters.rivers).some(r => normalizeSimple(r) === norm);
+        }
+        function getWarningLabel(value) {
+            if (!Number.isFinite(value)) return 'Bình thường';
+            if (value >= 3) return 'Trên BĐ3';
+            if (value >= 2) return 'Trên BĐ2';
+            if (value >= 1) return 'Trên BĐ1';
+            return 'Dưới BĐ1';
+        }
+        function formatDateTick(dateStr) {
+            try {
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return dateStr;
+                return `${d.getDate()}/${d.getMonth() + 1}`;
+            } catch(e) { return dateStr; }
+        }
+        function formatDisplayDate(dateStr) {
+            try {
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return dateStr;
+                return `${d.getHours()}h ${d.getDate()}/${d.getMonth() + 1}`;
+            } catch(e) { return dateStr; }
+        }
+        function formatFullDate(dateStr) {
+            try {
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return dateStr;
+                return d.toLocaleString('en-GB', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+            } catch(e) { return dateStr; }
+        }
+        function normalizeToHourKey(value) {
+            if (!value) return null;
+            const match = String(value).trim().match(/^(\d{4}-\d{2}-\d{2})[T ](\d{1,2}):/);
+            if (!match) return null;
+            const [, datePart, hourPart] = match;
+            return `${datePart} ${hourPart.padStart(2, '0')}:00`;
+        }
+        function getLakeStatus(record) {
+            const ratio = Number.isFinite(record?.ratio) ? record.ratio : 0;
+            if (ratio > 105) return { label: "Tỷ lệ dung tích >105%", color: COLORS.purple };
+            if (ratio > 100) return { label: "Tỷ lệ dung tích >100%", color: COLORS.red };
+            if (ratio >= 95) return { label: "Tỷ lệ dung tích ≥95%", color: COLORS.yellow };
+            if (ratio >= 90) return { label: "Tỷ lệ dung tích ≥90%", color: COLORS.green };
+            return { label: "Tỷ lệ dung tích <90%", color: COLORS.blue };
+        }
+        function getRiverStatus(record) {
+            const val = Number.isFinite(record?.value) ? record.value : null;
+            const historic = Number.isFinite(record?.historic) ? record.historic : null;
+            const bd3 = Number.isFinite(record?.bd3) ? record.bd3 : null;
+            const bd2 = Number.isFinite(record?.bd2) ? record.bd2 : null;
+            const warn = Number.isFinite(record?.warningValue) ? record.warningValue : 0;
+            if (val !== null && historic !== null && val > historic) return { label: "Trên lũ lịch sử", color: COLORS.purple };
+            if (val !== null && bd3 !== null && val > bd3) return { label: "Trên BĐ3", color: COLORS.red };
+            if (val !== null && bd2 !== null && val > bd2) return { label: "Trên BĐ2", color: COLORS.yellow };
+            if (warn >= 1 || (val !== null && bd2 !== null && val > bd2 * 0.9)) return { label: "Trên BĐ1", color: COLORS.green };
+            return { label: "Dưới BĐ1", color: COLORS.blue };
+        }
+        function buildTriangle(lat, lon, half) {
+            return [[lat + half, lon], [lat - half, lon - half], [lat - half, lon + half]];
+        }
+        const toMapCoord = (lat, lon) => ol.proj.fromLonLat([lon, lat]);
+        const fromMapCoord = (coord) => {
+            const [lon, lat] = ol.proj.toLonLat(coord);
+            return { lat, lon };
+        };
+        function computeLakeHalfSize(capacity) {
+            const cap = Number.isFinite(capacity) ? capacity : 100000;
+            const base = Math.sqrt(Math.max(cap, 1));
+            return Math.min(0.02, Math.max(0.001, 0.0004 + base * 0.000003));
+        }
+        function computeLakePixelRadius(capacity, ratio = 0) {
+            const baseHalf = computeLakeHalfSize(capacity);
+            const capScale = Math.min(18, Math.max(6, 6 + baseHalf * 2500));
+            const ratioBoost = 1 + Math.min(0.8, ratio / 150);
+            return capScale * ratioBoost;
+        }
+        const requestViewUpdate = () => {
+            if (pendingUpdate !== null) return;
+            pendingUpdate = requestAnimationFrame(() => { pendingUpdate = null; updateView(); });
+        };
+
+        // =============================================================================
+        // 5. DATA LOADING & PROCESSING
+        // =============================================================================
+        async function initData() {
+            try {
+                // Use relative paths for local preview. For production, uncomment and adjust BASE_URL.
+                // const BASE_URL = "https://raw.githubusercontent.com/YOUR_USER/YOUR_REPO/main";
+                
+                const [geoRes, riverRes, rainRes, waterRes] = await Promise.allSettled([
+                    d3.json("./geo/WardBoundary.geojson"),
+                    d3.json("./geo/river.json"),
+                    d3.csv("./data/rain.csv"), 
+                    d3.csv("./data/river.csv")
+                ]);
+
+                if (geoRes.status === 'fulfilled') {
+                    console.log("Core Data Loaded.");
+                    processData(
+                        geoRes.value,
+                        riverRes.status === 'fulfilled' ? riverRes.value : null,
+                        rainRes.status === 'fulfilled' ? rainRes.value : [],
+                        waterRes.status === 'fulfilled' ? waterRes.value : []
+                    );
+                    buildStoryFilterOptions();
+                    buildStoryLabelOptions();
+                    state.dataReady = true;
+                    renderStoryPreview();
+                    previewPending = false;
+                } else { 
+                    throw new Error("GeoJSON missing"); 
+                }
+            } catch (e) {
+                console.error("Load Error:", e);
+            }
+        }
+
+        function processData(geo, river, rainCsv, waterCsv) {
+            // 1. Filter GeoJSON
+            const filteredFeatures = geo.features.filter(f => isAllowedProvince(f.properties["Tỉnh thành mới"]));
+            state.geoData = { ...geo, features: filteredFeatures };
+            state.riverData = river;
+
+            // 2. Helpers for CSV Headers
+            const cleanKey = key => (typeof key === "string" ? key.replace(/^\uFEFF/, '') : key);
+            const pickField = (obj, candidates) => {
+                if (!obj) return null;
+                const keys = Object.keys(obj);
+                for (const candidate of candidates) {
+                    const match = keys.find(key => cleanKey(key) === candidate);
+                    if (match) return match;
+                }
+                return null;
+            };
+            
+            // Detect Column Names
+            const sampleRain = rainCsv[0] || {}, sampleWater = waterCsv[0] || {};
+            const keys = {
+                rainDate: pickField(sampleRain, ["timestamp", "time", "date", "Thời gian", "Thời gian (UTC)"]),
+                rainWard: pickField(sampleRain, ["ward_id", "commune_id_2cap", "wardid"]),
+                rainVal: pickField(sampleRain, ["rain_mm_idw", "rain", "value"]),
+                waterDate: pickField(sampleWater, ["timestamp", "Thời gian (UTC)", "time", "date"]),
+                waterId: pickField(sampleWater, ["station_id", "Mã trạm/LakeCode", "stationid"]),
+                waterVal: pickField(sampleWater, ["val", "value", "water_level", "Mực nước (m)"]),
+                waterProv: pickField(sampleWater, ["Tên tỉnh", "province", "provinceName"]),
+                waterRiver: pickField(sampleWater, ["Tên sông/Lưu vực", "river", "basin", "Tên sông", "luu_vuc", "basin_name"]),
+                waterType: pickField(sampleWater, ["type"]),
+                waterRatio: pickField(sampleWater, ["Tỷ lệ dung tích (%)", "Ty le dung tich (%)"]),
+                waterCap: pickField(sampleWater, ["Dung tích TK (m3)", "Dung tích (m3)"]),
+                waterTrend: pickField(sampleWater, ["Cảnh báo/Xu thế", "Canh bao/Xu the"]),
+                waterWarnVal: pickField(sampleWater, ["Cảnh báo value (0-4)", "Canh bao value (0-4)"]),
+                qIn: pickField(sampleWater, ["Q đến (m3/s)", "Q den (m3/s)"]),
+                qOut: pickField(sampleWater, ["Q xả (m3/s)", "Q xa (m3/s)"]),
+                bd1: pickField(sampleWater, ["BĐ1 (m)", "BD1 (m)"]),
+                bd2: pickField(sampleWater, ["BĐ2 (m)", "BD2 (m)"]),
+                bd3: pickField(sampleWater, ["BĐ3 (m)", "BD3 (m)"]),
+                historic: pickField(sampleWater, ["Mực nước lịch sử (m)", "Muc nuoc lich su (m)"])
+            };
+
+            // 3. Setup Wards
+            state.wardIds = [];
+            filteredFeatures.forEach(f => {
+                let id = f.properties["ward_id"];
+                const name = f.properties["Phường xã mới"];
+                const province = f.properties["Tỉnh thành mới"];
+                if (!id) id = (province && name) ? `${province} | ${name}` : name;
+                f.properties._uniqueId = id; 
+                if (!state.wardIds.includes(id)) state.wardIds.push(id);
+                state.wardNames[id] = name;
+                state.wardProvinces[id] = province || '';
+            });
+
+            // 4. Setup Dates with Filtering
+            const dateSet = new Set();
+            const addDate = (d, key, prov) => {
+                const normalized = normalizeToHourKey(d[key]);
+                if (normalized && (!prov || isAllowedProvince(prov))) dateSet.add(normalized);
+            };
+            rainCsv.forEach(d => addDate(d, keys.rainDate, provinceFromWardId(d[keys.rainWard])));
+            waterCsv.forEach(d => addDate(d, keys.waterDate, d[keys.waterProv]));
+            
+            let allDates = Array.from(dateSet).sort((a,b) => new Date(a) - new Date(b));
+            
+            // *** FILTER DATE RANGE HERE ***
+            state.dates = allDates.filter(d => {
+                const dateObj = new Date(d);
+                return dateObj >= FILTER_RANGE.start && dateObj <= FILTER_RANGE.end;
+            });
+
+            // Reset visible start index since strict filtering makes the whole array visible
+            state.visibleStartIndex = 0;
+
+            // 5. Init Data Structures
+            state.dataMap = {}; state.accumulatedMap = {}; state.waterLevelMap = {};
+            let runningTotals = {};
+            state.wardIds.forEach(id => { runningTotals[id] = 0; state.wardTimeSeries[id] = []; });
+
+            const rainByDate = d3.group(rainCsv, d => normalizeToHourKey(d[keys.rainDate]));
+            const waterByDate = d3.group(waterCsv, d => normalizeToHourKey(d[keys.waterDate]));
+            const lastWaterValues = {};
+
+            // 6. Time Loop Processing
+            state.dates.forEach((date, t) => {
+                state.dataMap[t] = {}; state.accumulatedMap[t] = {}; state.waterLevelMap[t] = {}; 
+
+                // Rain
+                const rainRows = rainByDate.get(date) || [];
+                let dailySum = 0, dailyCount = 0, dailyMax = 0;
+                const rainLookup = new Map();
+                
+                rainRows.forEach(r => {
+                    const rid = keys.rainWard ? r[keys.rainWard] : r["ward_id"];
+                    if (!rid) return;
+                    const prov = provinceFromWardId(rid);
+                    if (prov && !isAllowedProvince(prov)) return;
+                    rainLookup.set(rid, parseFloat(r[keys.rainVal] || 0));
+                });
+
+                state.wardIds.forEach(id => {
+                    let val = rainLookup.has(id) ? rainLookup.get(id) : 0; 
+                    if (isNaN(val)) val = 0;
+                    state.wardTimeSeries[id].push({ date: date, val: val });
+                    
+                    if (rainLookup.has(id)) {
+                        state.dataMap[t][id] = val;
+                        runningTotals[id] += val;
+                        dailySum += val; dailyCount++;
+                        if(val > dailyMax) dailyMax = val;
+                    }
+                    state.accumulatedMap[t][id] = runningTotals[id];
+                });
+                state.timelineStats.push({ date: date, avg: dailyCount > 0 ? dailySum / dailyCount : 0, max: dailyMax });
+
+                // Water
+                const waterRows = waterByDate.get(date) || [];
+                waterRows.forEach(row => {
+                    const sid = keys.waterId ? row[keys.waterId] : row.station_id;
+                    if (!sid) return;
+                    const prov = keys.waterProv ? row[keys.waterProv] : null;
+                    if (prov && !isAllowedProvince(prov)) return;
+
+                    // Metadata Extraction (First time only)
+                    if (!state.stationMeta[sid]) {
+                        const riverName = keys.waterRiver ? (row[keys.waterRiver] || "").trim() : null;
+                        state.stationMeta[sid] = {
+                            station_id: sid,
+                            lat: parseFloat(row.lat || row.latitude || row.y),
+                            lon: parseFloat(row.lon || row.lng || row.x),
+                            name: row["Trạm/Hồ"] || row.station_name || sid,
+                            type: inferStationType(keys.waterType ? row[keys.waterType] : row.type),
+                            provinceRaw: prov,
+                            province: prov ? normalizeProvince(prov) : null,
+                            river: riverName,
+                            riverNorm: normalizeSimple(riverName),
+                            designCapacity: keys.waterCap ? parseFloat(row[keys.waterCap]) : null
+                        };
+                    }
+
+                    const record = {
+                        value: parseFloat(row[keys.waterVal] || 0),
+                        ratio: keys.waterRatio ? parseFloat(row[keys.waterRatio]) : null,
+                        capacity: keys.waterCap ? parseFloat(row[keys.waterCap]) : null,
+                        warningValue: keys.waterWarnVal ? parseFloat(row[keys.waterWarnVal]) : null,
+                        warningTrend: keys.waterTrend ? row[keys.waterTrend] : null,
+                        qIn: keys.qIn ? parseFloat(row[keys.qIn]) : null,
+                        qOut: keys.qOut ? parseFloat(row[keys.qOut]) : null,
+                        bd1: keys.bd1 ? parseFloat(row[keys.bd1]) : null,
+                        bd2: keys.bd2 ? parseFloat(row[keys.bd2]) : null,
+                        bd3: keys.bd3 ? parseFloat(row[keys.bd3]) : null,
+                        historic: keys.historic ? parseFloat(row[keys.historic]) : null
+                    };
+                    
+                    lastWaterValues[sid] = record;
+                    state.waterLevelMap[t][sid] = record;
+                });
+                
+                // Carry forward last known water values if missing
+                Object.entries(lastWaterValues).forEach(([sid, prev]) => {
+                    if (!state.waterLevelMap[t][sid]) state.waterLevelMap[t][sid] = prev;
+                });
+            });
+
+            // 7. Initialize Visualization
+            initGeoLayer();
+            initRiverLayer();
+            initStationLayer();
+            initTimelineChart();
+            applyLayerVisibility();
+            populateRiverFilter();
+
+            const maxIdx = state.dates.length - 1;
+            DOM.sliderStart.max = maxIdx; DOM.sliderStart.min = state.visibleStartIndex;
+            DOM.sliderEnd.max = maxIdx; DOM.sliderEnd.min = state.visibleStartIndex;
+
+            const cachedStart = Number.isFinite(cachedTimelineState?.start) ? cachedTimelineState.start : state.visibleStartIndex;
+            const cachedEnd = Number.isFinite(cachedTimelineState?.end) ? cachedTimelineState.end : state.visibleStartIndex;
+            const startVal = Math.min(Math.max(state.visibleStartIndex, cachedStart), maxIdx);
+            const endVal = Math.min(Math.max(startVal, cachedEnd), maxIdx);
+
+            DOM.sliderStart.value = startVal;
+            DOM.sliderEnd.value = endVal;
+            state.startIndex = startVal; 
+            state.endIndex = endVal;
+            
+            generateTicks();
+            updateView();
+            fitToGeoBounds();
+        }
+
+        // =============================================================================
+        // 6. MAP LAYER LOGIC
+        // =============================================================================
+        function initGeoLayer() {
+            if (geoLayer) map.removeLayer(geoLayer);
+            const features = new ol.format.GeoJSON().readFeatures(state.geoData, { featureProjection: 'EPSG:3857' });
+            features.forEach(f => f.set('_type', 'ward'));
+            geoLayer = new ol.layer.Vector({
+                source: new ol.source.Vector({ features }),
+                style: wardStyleFunction,
+                zIndex: 400
+            });
+            map.addLayer(geoLayer);
+            populateProvinceFilter();
+            populateRiverFilter();
+        }
+
+        const transparentWardStyle = new ol.style.Style({
+            stroke: new ol.style.Stroke({ color: 'rgba(0,0,0,0)', width: 0 }),
+            fill: new ol.style.Fill({ color: 'rgba(0,0,0,0)' })
+        });
+
+        function wardStyleFunction(feature) {
+            const id = feature.get('_uniqueId');
+            const prov = feature.get("Tỉnh thành mới");
+            if (filters.provinces.size > 0 && prov && !Array.from(filters.provinces).some(p => normalizeProvince(p) === normalizeProvince(prov))) {
+                return transparentWardStyle;
+            }
+
+            let val = 0;
+            if (state.mode === 'daily') {
+                val = state.dataMap[state.endIndex]?.[id] || 0;
+            } else {
+                const end = state.accumulatedMap[state.endIndex]?.[id] || 0;
+                const start = (state.startIndex > 0) ? (state.accumulatedMap[state.startIndex - 1]?.[id] || 0) : 0;
+                val = Math.max(0, end - start);
+            }
+
+            if (val === 0 && state.mode === 'daily') return transparentWardStyle;
+
+            const color = getColor(val);
+            const fillColor = color === 'transparent' ? 'rgba(0,0,0,0)' : applyOpacity(color, layerOpacity.rain);
+            return new ol.style.Style({
+                stroke: new ol.style.Stroke({ color: 'rgba(0,0,0,0)', width: 0 }),
+                fill: new ol.style.Fill({ color: fillColor }),
+            });
+        }
+
+        function fitToGeoBounds() {
+            if (!geoLayer || !geoLayer.getSource()) return;
+            const extent = geoLayer.getSource().getExtent();
+            if (extent) map.getView().fit(extent, { padding: [50, 50, 50, 50] });
+        }
+
+        function initRiverLayer() {
+            if (riverLayer) map.removeLayer(riverLayer);
+            if (!state.riverData) return;
+            const features = new ol.format.GeoJSON().readFeatures(state.riverData, { featureProjection: 'EPSG:3857' });
+            const riverStroke = () => new ol.style.Style({ stroke: new ol.style.Stroke({ color: applyOpacity('#60a5fa', layerOpacity.hydro), width: 1.5, lineCap: 'round', lineJoin: 'round' }) });
+            riverLayer = new ol.layer.Vector({
+                source: new ol.source.Vector({ features }),
+                style: (feature) => {
+                    const basin = feature.get('Basin') || feature.get('name') || '';
+                    if (!matchesRiverFilter(basin)) return null;
+                    return riverStroke();
+                },
+                zIndex: 500
+            });
+            map.addLayer(riverLayer);
+        }
+
+        function initStationLayer() {
+            if (stationLayer) map.removeLayer(stationLayer);
+            if (lakeLayer) map.removeLayer(lakeLayer);
+
+            const stationSource = new ol.source.Vector();
+            const lakeSource = new ol.source.Vector();
+            
+            Object.values(state.stationMeta).forEach(meta => {
+                if (!Number.isFinite(meta.lat) || !Number.isFinite(meta.lon)) return;
+
+                if (!matchesRiverFilter(meta.riverNorm || meta.river)) return;
+                
+                const isLake = inferStationType(meta.type) === 'lake';
+                const feature = new ol.Feature({
+                    geometry: new ol.geom.Point(toMapCoord(meta.lat, meta.lon)),
+                    stationId: meta.station_id,
+                    stationType: isLake ? 'lake' : 'river',
+                    stationLabel: meta.name,
+                    riverName: meta.river || '',
+                    designCapacity: meta.designCapacity || null,
+                    baseLat: meta.lat,
+                    baseLon: meta.lon
+                });
+
+                if (isLake) lakeSource.addFeature(feature);
+                else stationSource.addFeature(feature);
+            });
+
+            if (stationSource.getFeatures().length) {
+                stationLayer = new ol.layer.Vector({
+                    source: stationSource,
+                    style: stationStyleFunction,
+                    zIndex: 650
+                });
+                map.addLayer(stationLayer);
+            }
+            if (lakeSource.getFeatures().length) {
+                lakeLayer = new ol.layer.Vector({
+                    source: lakeSource,
+                    style: lakeStyleFunction,
+                    zIndex: 650
+                });
+                map.addLayer(lakeLayer);
+            }
+        }
+
+        const invisibleStyle = new ol.style.Style({});
+
+        function stationStyleFunction(feature) {
+            const sid = feature.get('stationId');
+            const record = state.waterLevelMap[state.endIndex]?.[sid];
+            if (!record) return invisibleStyle;
+            const status = getRiverStatus(record);
+            const c = applyOpacity(status.color, layerOpacity.hydro);
+            return new ol.style.Style({
+                image: new ol.style.Circle({
+                    radius: Math.max(CIRCLE_MARKER_RADIUS, 3 + (record.warningValue || 0) * 2),
+                    fill: new ol.style.Fill({ color: c }),
+                    stroke: new ol.style.Stroke({ color: c, width: 1 })
+                })
+            });
+        }
+
+        function lakeStyleFunction(feature) {
+            const sid = feature.get('stationId');
+            const record = state.waterLevelMap[state.endIndex]?.[sid];
+            if (!record) return invisibleStyle;
+            const ratio = Number.isFinite(record.ratio) ? record.ratio : 0;
+            const color = getLakeStatus(record).color;
+            const radius = computeLakePixelRadius(record.capacity, ratio);
+            const c = applyOpacity(color, layerOpacity.hydro);
+            return new ol.style.Style({
+                image: new ol.style.RegularShape({
+                    points: 3,
+                    radius,
+                    rotation: Math.PI,
+                    fill: new ol.style.Fill({ color: c }),
+                    stroke: new ol.style.Stroke({ color: applyOpacity('#fff', layerOpacity.hydro), width: 1 })
+                })
+            });
+        }
+
+        function updateView() {
+            state.startIndex = parseInt(DOM.sliderStart.value);
+            state.endIndex = parseInt(DOM.sliderEnd.value);
+            
+            // Validate Logic
+            if (state.startIndex < state.visibleStartIndex) { state.startIndex = state.visibleStartIndex; DOM.sliderStart.value = state.visibleStartIndex; }
+            if (state.endIndex < state.visibleStartIndex) { state.endIndex = state.visibleStartIndex; DOM.sliderEnd.value = state.visibleStartIndex; }
+            if (state.startIndex > state.endIndex) { state.startIndex = state.endIndex; DOM.sliderStart.value = state.startIndex; }
+
+            // UI Updates
+            const total = parseInt(DOM.sliderEnd.max);
+            if (total > 0) {
+                const leftP = (state.startIndex / total) * 100;
+                const rightP = (state.endIndex / total) * 100;
+                DOM.rangeFill.style.left = `${leftP}%`;
+                DOM.rangeFill.style.width = `${rightP - leftP}%`;
+            }
+            const displayDateEl = document.getElementById('display-date');
+            const dateStartDisplay = document.getElementById('start-date-display');
+            const endDateStr = formatDisplayDate(state.dates[state.endIndex]);
+            const startDateStr = formatDisplayDate(state.dates[state.startIndex]);
+            const isAccumulated = state.mode === 'accumulated';
+            const labelText = isAccumulated
+                ? `Thời gian: ${startDateStr} - ${endDateStr}`
+                : `Thời gian: ${endDateStr}`;
+            displayDateEl.innerText = labelText;
+            if (dateStartDisplay) {
+                dateStartDisplay.innerText = '';
+                dateStartDisplay.classList.add('hidden');
+            }
+
+            // Map Updates
+            recomputeRainThresholds();
+            if (geoLayer?.getSource()) geoLayer.getSource().changed();
+            if (riverLayer?.getSource()) riverLayer.getSource().changed();
+            if (stationLayer?.getSource()) stationLayer.getSource().changed();
+            if (lakeLayer?.getSource()) lakeLayer.getSource().changed();
+            updateChartCursor();
+            schedulePersistDashboardState();
+        }
+
+        function recomputeRainThresholds() {
+            const vals = [];
+            geoLayer?.getSource()?.getFeatures().forEach(feature => {
+                const id = feature.get('_uniqueId');
+                let val = 0;
+                if (state.mode === 'daily') val = state.dataMap[state.endIndex]?.[id] || 0;
+                else {
+                    const end = state.accumulatedMap[state.endIndex]?.[id] || 0;
+                    const start = state.accumulatedMap[state.startIndex - 1]?.[id] || 0;
+                    val = Math.max(0, end - start);
+                }
+                if (val > 0) vals.push(val);
+            });
+            if (!vals.length) { rainThresholds = { p50: 0, p90: 0, p99: 0 }; return; }
+            vals.sort((a,b) => a-b);
+            const pct = p => vals[Math.floor(p * (vals.length - 1))];
+            rainThresholds = { p50: pct(0.5), p90: pct(0.9), p99: pct(0.99) };
+        }
+
+        function getColor(value) {
+            if (value <= 0) return 'transparent';
+            if (rainThresholds.p50 === 0) return '#0ea5e9';
+            if (value < rainThresholds.p50) return '#0ea5e9';
+            if (value < rainThresholds.p90) return '#22c55e';
+            if (value < rainThresholds.p99) return '#f59e0b';
+            return '#ef4444';
+        }
+
+        function updateLegendHover(value) {
+            if (!layerVisibility.rain || !DOM.legendHoverMarker) return;
+            if (value === null || value === undefined || value <= 0 || rainThresholds.p99 <= 0) {
+                DOM.legendHoverMarker.style.opacity = 0;
+                return;
+            }
+            
+            // Simple linear scale for position
+            let percent = 0;
+            if (value < rainThresholds.p50) percent = (value / rainThresholds.p50) * 33.3;
+            else if (value < rainThresholds.p90) percent = 33.3 + ((value - rainThresholds.p50) / (rainThresholds.p90 - rainThresholds.p50)) * 33.3;
+            else percent = 66.6 + Math.min(1, (value - rainThresholds.p90) / (rainThresholds.p99 - rainThresholds.p90)) * 33.4;
+            DOM.legendHoverMarker.style.left = `${Math.min(100, percent)}%`;
+            DOM.legendHoverMarker.style.opacity = 1;
+        }
+
+        function applyLayerVisibility() {
+            const toggle = (layer, visible) => { if (layer) layer.setVisible(!!visible); };
+            toggle(geoLayer, layerVisibility.rain);
+            toggle(riverLayer, layerVisibility.river);
+            toggle(stationLayer, layerVisibility.stations);
+            toggle(lakeLayer, layerVisibility.lakes);
+            
+            if(DOM.legendGradient) DOM.legendGradient.style.background = 'linear-gradient(to right, #0ea5e9, #22c55e, #ef4444)';
+
+            if (DOM.legendLakes) {
+                const ranges = [
+                    { label: ">105%", color: COLORS.purple },
+                    { label: "100-105%", color: COLORS.red },
+                    { label: "95-100%", color: COLORS.yellow },
+                    { label: "90-95%", color: COLORS.green },
+                    { label: "<90%", color: COLORS.blue }
+                ];
+                const triangle = (color) => `<span class="inline-flex w-0 h-0 border-l-[6px] border-r-[6px] border-l-transparent border-r-transparent border-t-[10px]" style="border-top-color:${color}"></span>`;
+                DOM.legendLakes.innerHTML = `
+                    <div class="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Dung tích hồ chứa</div>
+                    <div class="flex flex-col gap-1 text-xs">
+                        ${ranges.map(r => `<div class="flex items-center gap-2">${triangle(r.color)}<span>${r.label}</span></div>`).join('')}
+                    </div>`;
+            }
+            if (DOM.legendStations) DOM.legendStations.innerHTML = `
+                <div class="text-[10px] uppercase tracking-wider text-gray-400 mb-1">Trạm mực nước sông</div>
+                <div class="flex flex-col gap-1 text-xs">
+                    <div class="flex items-center gap-2"><span class="inline-flex w-3 h-3 rounded-full" style="background:${COLORS.purple}"></span><span>Trên lũ lịch sử</span></div>
+                    <div class="flex items-center gap-2"><span class="inline-flex w-3 h-3 rounded-full" style="background:${COLORS.red}"></span><span>Trên BĐ3</span></div>
+                    <div class="flex items-center gap-2"><span class="inline-flex w-3 h-3 rounded-full" style="background:${COLORS.yellow}"></span><span>Trên BĐ2</span></div>
+                    <div class="flex items-center gap-2"><span class="inline-flex w-3 h-3 rounded-full" style="background:${COLORS.green}"></span><span>Trên BĐ1</span></div>
+                    <div class="flex items-center gap-2"><span class="inline-flex w-3 h-3 rounded-full" style="background:${COLORS.blue}"></span><span>Dưới BĐ1</span></div>
+                </div>`;
+
+            DOM.legendRain.classList.toggle('hidden', !layerVisibility.rain);
+            DOM.legendLakes.classList.toggle('hidden', !layerVisibility.lakes);
+            DOM.legendStations.classList.toggle('hidden', !layerVisibility.stations);
+            if (!layerVisibility.rain && DOM.legendHoverMarker) DOM.legendHoverMarker.style.opacity = 0;
+
+            DOM.legendModeLabel.textContent = state.mode === 'daily' ? 'Theo giờ' : 'Tích lũy';
+        }
+
+        // =============================================================================
+        // 7. CHART & POPUP LOGIC (D3)
+        // =============================================================================
+        function initTimelineChart() {
+            const container = document.getElementById('chart-container');
+            const svg = d3.select("#timeline-chart");
+            svg.selectAll("*").remove();
+            const width = container.clientWidth, height = container.clientHeight;
+            
+            const defs = svg.append("defs");
+            const gradient = defs.append("linearGradient").attr("id", "chartGradient").attr("x1", "0").attr("y1", "0").attr("x2", "0").attr("y2", "1");
+            gradient.append("stop").attr("offset", "0%").attr("stop-color", "#60a5fa").attr("stop-opacity", 0.8);
+            gradient.append("stop").attr("offset", "100%").attr("stop-color", "#60a5fa").attr("stop-opacity", 0);
+
+            const data = state.timelineStats.slice(state.visibleStartIndex);
+            chartXScale = d3.scaleLinear().domain([0, Math.max(data.length - 1, 0)]).range([0, width]);
+            chartYScale = d3.scaleLinear().domain([0, (d3.max(data, d => d.avg) || 10) * 1.2]).range([height, 5]);
+
+            const area = d3.area().curve(d3.curveMonotoneX).x((d, i) => chartXScale(i)).y0(height).y1(d => chartYScale(d.avg));
+            svg.append("path").datum(data).attr("class", "chart-area").attr("d", area);
+            
+            svg.append("rect").attr("id", "chart-selection-rect").attr("class", "chart-selection-rect").attr("height", height).attr("y", 0);
+            svg.append("line").attr("id", "chart-cursor-line").attr("class", "chart-cursor").attr("y1", 0).attr("y2", height);
+
+            svg.on("click", (event) => {
+                if (!chartXScale) return;
+                const [x] = d3.pointer(event);
+                const idx = state.visibleStartIndex + Math.round(chartXScale.invert(x));
+                DOM.sliderEnd.value = idx;
+                requestViewUpdate();
+            });
+            updateChartCursor();
+        }
+
+        function updateChartCursor() {
+            if (!chartXScale) return;
+            const relStart = Math.max(0, state.startIndex - state.visibleStartIndex);
+            const relEnd = Math.max(0, state.endIndex - state.visibleStartIndex);
+            const xStart = chartXScale(relStart);
+            const xEnd = chartXScale(relEnd);
+            
+            d3.select("#chart-cursor-line").attr("x1", xEnd).attr("x2", xEnd);
+            d3.select("#chart-selection-rect").attr("x", Math.min(xStart, xEnd)).attr("width", Math.max(2, xEnd - xStart));
+            updatePopupCursorLines();
+        }
+
+        function renderLineChart(target, seriesList, options = {}) {
+            const mobile = isMobileView();
+            const baseWidth = options.width || 260;
+            const baseHeight = options.height || 140;
+            const parentWidth = target.parentElement?.clientWidth || baseWidth;
+            const width = mobile ? Math.max(160, parentWidth) : baseWidth;
+            const aspect = baseHeight / baseWidth;
+            const height = mobile ? Math.max(80, width * aspect) : baseHeight;
+            if (mobile) target.style.width = '100%';
+            const margin = { top: 10, right: 10, bottom: mobile ? 10 : 22, left: 32 };
+            const innerW = width - margin.left - margin.right, innerH = height - margin.top - margin.bottom;
+            target.style.position = 'relative';
+            const svgRoot = d3.select(target).append("svg").attr("width", width).attr("height", height);
+            const svg = svgRoot.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
+            const domainDates = state.dates.slice(state.visibleStartIndex);
+            const x = d3.scalePoint().domain(domainDates).range([0, innerW]);
+            
+            const allVals = seriesList.flatMap(s => s.data.map(d => d.val)).filter(Number.isFinite);
+            const annotationVals = (options.annotations || []).map(ann => ann.value).filter(Number.isFinite);
+            const axisVals = allVals.concat(annotationVals);
+            const minVal = axisVals.length ? d3.min(axisVals) : 0;
+            const maxVal = axisVals.length ? d3.max(axisVals) : 1;
+            const range = maxVal - minVal;
+            const padding = range === 0 ? (Math.abs(maxVal) * 0.1 || 1) : range * 0.1;
+            const domainLow = minVal - padding;
+            const domainHigh = maxVal + padding;
+            const y = d3.scaleLinear().domain([domainLow, domainHigh]).range([innerH, 0]);
+
+            let selectionRect = null;
+            if (options.selectionRange && domainDates.length) {
+                const startIdx = Math.max(0, Math.min(domainDates.length - 1, options.selectionRange.start));
+                const endIdx = Math.max(0, Math.min(domainDates.length - 1, options.selectionRange.end));
+                const xStart = x(domainDates[Math.min(startIdx, endIdx)]);
+                const xEnd = x(domainDates[Math.max(startIdx, endIdx)]);
+                const widthSpan = Math.max(4, Math.abs(xEnd - xStart));
+                selectionRect = svg.append("rect")
+                    .attr("x", Math.min(xStart, xEnd))
+                    .attr("y", 0)
+                    .attr("width", widthSpan)
+                    .attr("height", innerH)
+                    .attr("fill", "#3b82f6")
+                    .attr("opacity", 0.15);
+            }
+
+            const seriesLookups = seriesList.map(s => new Map(s.data.map(d => [d.date, d.val])));
+
+            seriesList.forEach(s => {
+                const line = d3.line().defined(d => Number.isFinite(d.val)).x(d => x(d.date)).y(d => y(d.val)).curve(d3.curveMonotoneX);
+                svg.append("path").datum(s.data).attr("fill", "none").attr("stroke", s.color).attr("stroke-width", 2).attr("d", line);
+            });
+
+            if (options.annotations) {
+                options.annotations.forEach(ann => {
+                    if (!Number.isFinite(ann.value)) return;
+                    const yPos = y(ann.value);
+                    svg.append("line").attr("x1", 0).attr("x2", innerW).attr("y1", yPos).attr("y2", yPos).attr("stroke", ann.color).attr("stroke-dasharray", "4 2").attr("stroke-width", 1);
+                    if (ann.label) {
+                        svg.append("text").attr("x", innerW - 4).attr("y", yPos - 2).attr("text-anchor", "end").attr("fill", ann.color).attr("font-size", 9).text(ann.label);
+                    }
+                });
+            }
+            
+            const xTicks = domainDates.length >= 3 
+                ? [domainDates[0], domainDates[Math.floor(domainDates.length / 2)], domainDates[domainDates.length - 1]]
+                : domainDates;
+            if (!mobile) {
+                svg.append("g").attr("class", "popup-chart axis").attr("transform", `translate(0,${innerH})`)
+                    .call(d3.axisBottom(x).tickValues(xTicks).tickFormat(formatDateTick))
+                    .selectAll("path, line").attr("stroke-width", 0.5);
+            }
+            const formatYAxis = (val) => {
+                if (Math.abs(val) >= 1000) return `${(val / 1000).toFixed(1)}k`;
+                return val;
+            };
+            svg.append("g").attr("class", "popup-chart axis")
+                .call(d3.axisLeft(y).ticks(3).tickFormat(formatYAxis))
+                .selectAll("path, line").attr("stroke-width", 0.5);
+
+            if (options.legend) {
+                const legend = svg.append("g").attr("transform", `translate(0,${-4})`);
+                options.legend.forEach((item, idx) => {
+                    const g = legend.append("g").attr("transform", `translate(${idx * 90},0)`);
+                    g.append("rect").attr("x", 0).attr("y", 0).attr("width", 10).attr("height", 10).attr("fill", item.color);
+                    g.append("text").attr("x", 14).attr("y", 9).attr("fill", "#ccc").attr("font-size", 9).text(item.label);
+                });
+            }
+
+            if (options.yLabel) {
+                svg.append("text").attr("transform", `translate(${-28},${innerH / 2}) rotate(-90)`).attr("fill", "#999").attr("font-size", 9).attr("text-anchor", "middle").text(options.yLabel);
+            }
+            
+            if (Number.isFinite(options.cursorIndex) && domainDates.length) {
+                const boundedIndex = Math.min(Math.max(0, options.cursorIndex), domainDates.length - 1);
+                const cx = x(domainDates[boundedIndex]);
+                if (cx !== undefined) {
+                    const cursorLine = svg.append("line").attr("class", "popup-cursor-line").attr("x1", cx).attr("x2", cx).attr("y1", 0).attr("y2", innerH).attr("stroke", "#fbbf24").attr("stroke-dasharray", "4 2");
+                    registerPopupCursor({ line: cursorLine, rect: selectionRect, scale: x, dates: domainDates });
+                }
+            }
+        }
+
+        function openWardPopup(id, coordinate) {
+            const container = document.createElement('div'); container.className = "w-[260px] p-1";
+            const provinceLabel = state.wardProvinces[id] ? `<div class="text-[11px] text-gray-400">${state.wardProvinces[id]}</div>` : '';
+            container.innerHTML = `
+                <div class="flex items-start justify-between mb-1">
+                    <div>
+                        <div class="font-bold text-sm mb-0 text-white">${state.wardNames[id] || id}</div>
+                        ${provinceLabel}
+                    </div>
+                    <button class="text-[11px] px-2 py-1 rounded bg-amber-500/20 text-amber-200 hover:bg-amber-500/40" data-pin-ward="${id}">Ghim</button>
+                </div>
+                <div class="border-b border-gray-700 my-2"></div>`;
+            const chartDiv = document.createElement('div'); container.appendChild(chartDiv);
+            const pinBtn = container.querySelector('[data-pin-ward]');
+            if (pinBtn) pinBtn.addEventListener('click', () => addPinnedWardChart(id));
+
+            const mapRef = state.mode === 'daily' ? state.dataMap : state.accumulatedMap;
+            const data = [];
+            for (let i = state.visibleStartIndex; i < state.dates.length; i++) {
+                const raw = mapRef[i]?.[id];
+                const val = Number(raw) || 0;
+                data.push({ date: state.dates[i], val });
+            }
+            
+            if (data.length) {
+                const label = state.mode === 'daily' ? 'Mưa' : 'Mưa tích lũy';
+                renderLineChart(chartDiv, [{ data, color: "#38bdf8", label }], { cursorIndex: state.endIndex - state.visibleStartIndex, selectionRange: { start: state.startIndex - state.visibleStartIndex, end: state.endIndex - state.visibleStartIndex } });
+            }
+            else chartDiv.innerText = "Không có dữ liệu";
+            popupElement.dataset.type = 'ward';
+            popupElement.dataset.id = id;
+            popupElement.dataset.coord = JSON.stringify(coordinate);
+            showPopup(container, coordinate);
+        }
+
+        function openStationPopup(feature, coordinate) {
+            const sid = feature.get('stationId');
+            const meta = state.stationMeta[sid] || {};
+            const basin = meta.river || feature.get('riverName') || '—';
+            const prov = meta.provinceRaw || meta.province || '—';
+            const container = document.createElement('div'); container.className = "w-[280px] p-1";
+            const warnRecord = state.waterLevelMap[state.endIndex]?.[sid];
+            const warnStatus = meta.type === 'lake' ? null : getRiverStatus(warnRecord);
+            const lakeStatus = meta.type === 'lake' ? getLakeStatus(warnRecord) : null;
+            const warnText = meta.type === 'lake' ? `Đầy ${Number.isFinite(warnRecord?.ratio) ? warnRecord.ratio.toFixed(1) + '%' : '—'}` : (warnStatus?.label || getWarningLabel(warnRecord?.warningValue));
+            const warnColor = meta.type === 'lake' ? (lakeStatus?.color || COLORS.blue) : (warnStatus?.color || COLORS.blue);
+            const pinButtons = feature.get('stationType') === 'lake'
+                ? `<div class="flex gap-1">
+                        <button class="text-[11px] px-2 py-1 rounded bg-amber-500/20 text-amber-200 hover:bg-amber-500/40" data-pin-lake-storage="${sid}">Ghim dung tích</button>
+                        <button class="text-[11px] px-2 py-1 rounded bg-amber-500/20 text-amber-200 hover:bg-amber-500/40" data-pin-lake-flow="${sid}">Ghim lưu lượng</button>
+                   </div>`
+                : `<button class="text-[11px] px-2 py-1 rounded bg-amber-500/20 text-amber-200 hover:bg-amber-500/40" data-pin-station="${sid}">Ghim</button>`;
+            container.innerHTML = `
+                <div class="flex items-start justify-between mb-2">
+                    <div>
+                        <div class="font-bold text-sm text-white">${feature.get('stationLabel')}</div>
+                        <div class="text-[11px] text-gray-400">Sông ${basin}, tỉnh ${prov}</div>
+                    </div>
+                    <div class="flex flex-col items-end gap-1">
+                        <span class="px-2 py-1 rounded text-[11px] font-semibold" style="background:${warnColor}22;color:${warnColor};border:1px solid ${warnColor}55;">${warnText}</span>
+                        ${pinButtons}
+                    </div>
+                </div>
+                <div class="border-b border-gray-700 mb-2"></div>`;
+            const chartDiv = document.createElement('div'); container.appendChild(chartDiv);
+            const pinStationBtn = container.querySelector('[data-pin-station]');
+            if (pinStationBtn) pinStationBtn.addEventListener('click', () => {});
+            const pinLakeStorageBtn = container.querySelector('[data-pin-lake-storage]');
+            if (pinLakeStorageBtn) pinLakeStorageBtn.addEventListener('click', () => {});
+            const pinLakeFlowBtn = container.querySelector('[data-pin-lake-flow]');
+            if (pinLakeFlowBtn) pinLakeFlowBtn.addEventListener('click', () => {});
+            
+            const build = (fn) => {
+                const res = [];
+                for (let i = state.visibleStartIndex; i < state.dates.length; i++) {
+                    const val = fn(state.waterLevelMap[i]?.[sid]);
+                    if (Number.isFinite(val)) res.push({ date: state.dates[i], val });
+                }
+                return res;
+            };
+
+            if (feature.get('stationType') === 'lake') {
+                const qIn = build(r => r?.qIn);
+                const qOut = build(r => r?.qOut);
+                const storage = build(r => {
+                    const ratio = Number.isFinite(r?.ratio) ? r.ratio : null;
+                    const cap = Number.isFinite(r?.capacity) ? r.capacity : (feature.get('designCapacity') || state.stationMeta[sid]?.designCapacity);
+                    if (ratio === null || !Number.isFinite(cap)) return null;
+                    return (ratio / 100) * cap;
+                });
+                const annCap = [];
+                const capVal = feature.get('designCapacity') || state.stationMeta[sid]?.designCapacity || null;
+                if (Number.isFinite(capVal)) annCap.push({ value: capVal, color: COLORS.red});
+
+                renderLineChart(
+                    chartDiv,
+                    [{data:storage, color:"#38bdf8", label: "Dung tích"}],
+                    { 
+                        height: 100,
+                        annotations: annCap,
+                        cursorIndex: state.endIndex - state.visibleStartIndex,
+                        selectionRange: { start: state.startIndex - state.visibleStartIndex, end: state.endIndex - state.visibleStartIndex },
+                        legend: [{ label: "Dung tích", color: "#38bdf8" }, { label: "DT thiết kế (triệu m³)", color: COLORS.red }]
+                    }
+                );
+                const flowDiv = document.createElement('div'); container.appendChild(flowDiv);
+                renderLineChart(
+                    flowDiv,
+                    [
+                        {data:qIn, color:"#22c55e", label:"Lượng đến"},
+                        {data:qOut, color:"#ef4444", label:"Lượng xả"}
+                    ],
+                    { 
+                        height: 100,
+                        cursorIndex: state.endIndex - state.visibleStartIndex,
+                        selectionRange: { start: state.startIndex - state.visibleStartIndex, end: state.endIndex - state.visibleStartIndex },
+                        legend: [{ label: "Lượng đến", color: "#22c55e" }, { label: "Lượng xả (m³/s)", color: "#ef4444" }],
+                    }
+                );
+            } else {
+                const level = build(r => r?.value);
+                const cur = state.waterLevelMap[state.endIndex]?.[sid];
+                const anns = [];
+                if (cur?.bd1) anns.push({ value: cur.bd1, color: COLORS.green });
+                if (cur?.bd2) anns.push({ value: cur.bd2, color: COLORS.yellow });
+                if (cur?.bd3) anns.push({ value: cur.bd3, color: COLORS.red });
+                if (cur?.historic) anns.push({ value: cur.historic, color: COLORS.purple });
+                renderLineChart(
+                    chartDiv,
+                    [{data:level, color:"#38bdf8", label:"Mực nước"}],
+                    { 
+                        height: 150,
+                        annotations: anns,
+                        cursorIndex: state.endIndex - state.visibleStartIndex,
+                        selectionRange: { start: state.startIndex - state.visibleStartIndex, end: state.endIndex - state.visibleStartIndex },
+                        legend: [{ label: "Mực nước (m)", color: "#38bdf8" }],
+                    }
+                );
+            }
+            popupElement.dataset.type = 'station';
+            popupElement.dataset.id = sid;
+            popupElement.dataset.coord = JSON.stringify(coordinate);
+            showPopup(container, coordinate);
+        }
+
+        // =============================================================================
+        // 8. STORY CREATOR LOGIC (NEW)
+        // =============================================================================
+        
+        const BLANK_STORY_SLIDE = {
+            id: 1,
+            title: "",
+            body: "",
+            timeline: { start: "", end: "", animate: false, snapToStart: true },
+            timelineMiniChart: true,
+            rainMode: "hourly",
+            layers: { rain: true, river: true, stations: true, lakes: true },
+            filters: { rivers: [], provinces: [] },
+            bounds: [{ extent: [108, 10, 110, 15] }],
+            labels: [],
+            opacity: { rain: 0.75, hydro: 0.9 }
+        };
+
+        let storySlides = Array.isArray(cachedStorySlides) ? cachedStorySlides : [];
+        let activeSlideIndex = storySlides.length ? Math.min(Math.max(0, cachedActiveSlideIndex), storySlides.length - 1) : 0;
+        let isStoryModalInitialized = false;
+        let storyMap;
+        let previewMap;
+        let previewVectorLayer;
+        let previewOverlays = [];
+        let previewDynamicLayers = [];
+        let previewPending = false;
+        const DEFAULT_PREVIEW_EXTENT = ol.extent.boundingExtent([
+            ol.proj.fromLonLat([106, 9]),
+            ol.proj.fromLonLat([111, 16])
+        ]);
+        let currentStoryTab = 'general';
+        let previewLastExtent = null;
+
+        const getActiveSlide = () => storySlides[activeSlideIndex] || storySlides[0];
+
+        function toggleStoryModal() {
+            DOM.storyModal.classList.toggle('hidden');
+            if (!DOM.storyModal.classList.contains('hidden') && !isStoryModalInitialized) {
+                initStoryCreator();
+                isStoryModalInitialized = true;
+                if (!storySlides.length) addSlide(true);
+            }
+            if (!DOM.storyModal.classList.contains('hidden')) {
+                document.body.classList.add('story-modal-open');
+                lucide.createIcons(); // Refresh icons inside modal
+            } else {
+                document.body.classList.remove('story-modal-open');
+            }
+        }
+
+        function toggleStoryPreview() {
+            const panel = document.getElementById('story-preview-panel');
+            panel.classList.toggle('translate-x-full');
+            setTimeout(() => {
+                initPreviewMap();
+                renderStoryPreview();
+                if (previewMap) previewMap.updateSize();
+            }, 60);
+        }
+
+        function updatePreviewMobileZone(extentArr, shouldShow) {
+            const zone = document.getElementById('preview-mobile-zone');
+            if (!zone || !previewMap) return;
+            if (!shouldShow || !extentArr || extentArr.length !== 4) {
+                zone.style.display = 'none';
+                return;
+            }
+            const [minLon, minLat, maxLon, maxLat] = extentArr.map(Number);
+            const bl = previewMap.getPixelFromCoordinate(ol.proj.fromLonLat([minLon, minLat]));
+            const tr = previewMap.getPixelFromCoordinate(ol.proj.fromLonLat([maxLon, maxLat]));
+            if (!bl || !tr) { zone.style.display = 'none'; return; }
+            const left = Math.min(bl[0], tr[0]);
+            const right = Math.max(bl[0], tr[0]);
+            const top = Math.min(bl[1], tr[1]);
+            const bottom = Math.max(bl[1], tr[1]);
+            const width = right - left;
+            const height = bottom - top;
+            if (width <= 0 || height <= 0) { zone.style.display = 'none'; return; }
+            zone.style.display = 'flex';
+            zone.style.left = `${left}px`;
+            zone.style.top = `${top}px`;
+            zone.style.width = `${width}px`;
+            zone.style.height = `${height}px`;
+        }
+
+                function buildStoryFilterOptions() {
+            const slide = getActiveSlide();
+            const provBox = DOM.sFilterProvinces;
+            const basinBox = DOM.sFilterBasins;
+            if (!provBox || !basinBox) return;
+            const selectedProv = new Set(slide?.filters?.provinces || []);
+            const selectedBasin = new Set(slide?.filters?.rivers || []);
+            provBox.innerHTML = '';
+            basinBox.innerHTML = '';
+            const provMap = new Map();
+            (state.geoData?.features || []).forEach(f => {
+                const p = f.properties["Tỉnh thành mới"];
+                if (p) provMap.set(p, p);
+            });
+            Array.from(provMap.values()).sort().forEach(p => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center gap-2 text-xs text-slate-700';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.className = 'accent-blue-600';
+                cb.value = p;
+                cb.checked = selectedProv.has(p);
+                cb.onchange = () => toggleFilterSelection('provinces', p, cb.checked);
+                label.appendChild(cb);
+                label.appendChild(document.createTextNode(p.replace(/^tỉnh\\s+/i, '')));
+                provBox.appendChild(label);
+            });
+            const basins = new Set();
+            Object.values(state.stationMeta || {}).forEach(meta => { if (meta.river) basins.add(meta.river); });
+            (state.riverData?.features || []).forEach(f => {
+                const b = f.properties?.Basin;
+                if (b) basins.add(b);
+            });
+            Array.from(basins).sort().forEach(b => {
+                const label = document.createElement('label');
+                label.className = 'flex items-center gap-2 text-xs text-slate-700';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.className = 'accent-blue-600';
+                cb.value = b;
+                cb.checked = selectedBasin.has(b);
+                cb.onchange = () => toggleFilterSelection('rivers', b, cb.checked);
+                label.appendChild(cb);
+                label.appendChild(document.createTextNode(b));
+                basinBox.appendChild(label);
+            });
+        }
+
+        function toggleFilterSelection(key, value, checked) {
+            const slide = getActiveSlide();
+            if (!slide) return;
+            slide.filters = slide.filters || { provinces: [], rivers: [] };
+            const arr = new Set(slide.filters[key] || []);
+            if (checked) arr.add(value); else arr.delete(value);
+            slide.filters[key] = Array.from(arr);
+            renderStoryJson();
+            buildStoryFilterOptions();
+            renderStoryPreview();
+        }
+
+        function buildStoryLabelOptions() {
+            const slide = getActiveSlide();
+            const stationList = DOM.sLabelsStations;
+            const lakeList = DOM.sLabelsLakes;
+            if (!stationList || !lakeList) return;
+            stationList.innerHTML = '';
+            lakeList.innerHTML = '';
+            if (!state.stationMeta || !Object.keys(state.stationMeta).length) return;
+            const selectedNames = new Set((slide?.labels || []).map(l => normalizeNoAccent(l.name)));
+            Object.values(state.stationMeta).forEach(meta => {
+                if (!meta.name) return;
+                const isLake = inferStationType(meta.type) === 'lake';
+                const label = document.createElement('label');
+                label.className = 'flex items-center gap-2 text-xs text-slate-700';
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.className = 'accent-blue-600';
+                cb.checked = selectedNames.has(normalizeNoAccent(meta.name));
+                cb.onchange = () => toggleLabelSelection(meta, cb.checked);
+                label.appendChild(cb);
+                label.appendChild(document.createTextNode(meta.name));
+                if (isLake) lakeList.appendChild(label); else stationList.appendChild(label);
+            });
+        }
+
+        function toggleLabelSelection(meta, checked) {
+            const slide = getActiveSlide();
+            if (!slide) return;
+            slide.labels = slide.labels || [];
+            const nameKey = normalizeNoAccent(meta.name);
+            slide.labels = slide.labels.filter(l => normalizeNoAccent(l.name) !== nameKey);
+            if (checked) {
+                slide.labels.push({
+                    name: meta.name,
+                    type: inferStationType(meta.type),
+                    color: inferStationType(meta.type) === 'lake' ? '#0ea5e9' : '#22c55e'
+                });
+            }
+            renderStoryJson();
+            buildStoryLabelOptions();
+            renderStoryPreview();
+        }
+
+        function syncFilterUI(slide) {
+            buildStoryFilterOptions();
+            const provSet = new Set(slide.filters?.provinces || []);
+            const riverSet = new Set(slide.filters?.rivers || []);
+            DOM.sFilterProvinces?.querySelectorAll('input[type=\"checkbox\"]').forEach(cb => cb.checked = provSet.has(cb.value));
+            DOM.sFilterBasins?.querySelectorAll('input[type=\"checkbox\"]').forEach(cb => cb.checked = riverSet.has(cb.value));
+        }
+
+        function syncLabelUI(slide) {
+            buildStoryLabelOptions();
+            const labelSet = new Set((slide.labels || []).map(l => normalizeNoAccent(l.name)));
+            DOM.sLabelsStations?.querySelectorAll('input[type=\"checkbox\"]').forEach(cb => {
+                const name = cb.parentElement?.textContent?.trim() || '';
+                cb.checked = labelSet.has(normalizeNoAccent(name));
+            });
+            DOM.sLabelsLakes?.querySelectorAll('input[type=\"checkbox\"]').forEach(cb => {
+                const name = cb.parentElement?.textContent?.trim() || '';
+                cb.checked = labelSet.has(normalizeNoAccent(name));
+            });
+        }
+
+        function initStoryCreator() {
+            populateStoryForm();
+            renderStoryJson();
+            initStoryMapEditor();
+            renderSlideChips();
+            renderStoryPreview(); // Ensure preview visible by default
+        }
+
+        function switchStoryTab(tabId) {
+            currentStoryTab = tabId;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                const isActive = btn.dataset.tab === tabId;
+                btn.classList.toggle('active', isActive);
+                btn.classList.toggle('text-slate-900', isActive);
+                btn.classList.toggle('text-slate-400', !isActive);
+            });
+            document.querySelectorAll('.story-tab-content').forEach(content => {
+                content.id === `stab-${tabId}` ? content.classList.remove('hidden') : content.classList.add('hidden');
+            });
+            // Resize map if tab switches
+            if (tabId === 'map' && storyMap) {
+                setTimeout(() => storyMap.updateSize(), 100);
+            }
+            renderStoryPreview();
+        }
+
+        function populateStoryForm() {
+            const slide = getActiveSlide();
+            if (!slide) return;
+            document.getElementById('sinp-id').value = slide.id || '';
+            document.getElementById('sinp-title').value = slide.title || '';
+            document.getElementById('sinp-body').value = slide.body || '';
+            
+            document.getElementById('sinp-time-start').value = slide.timeline.start || '';
+            document.getElementById('sinp-time-end').value = slide.timeline.end || '';
+            document.getElementById('sinp-animate').checked = !!slide.timeline.animate;
+            document.getElementById('sinp-snap').checked = !!slide.timeline.snapToStart;
+            document.getElementById('sinp-miniChart').checked = !!slide.timelineMiniChart;
+
+            document.getElementById('slayer-river').checked = !!slide.layers.river;
+            document.getElementById('slayer-stations').checked = !!slide.layers.stations;
+            document.getElementById('slayer-lakes').checked = !!slide.layers.lakes;
+            document.getElementById('slayer-rain').checked = !!slide.layers.rain;
+            document.getElementById('slayer-rainmode').value = slide.rainMode || 'accumulated';
+
+            document.getElementById('sop-rain').value = slide.opacity.rain ?? 0.75;
+            document.getElementById('sop-hydro').value = slide.opacity.hydro ?? 0.9;
+
+            syncFilterUI(slide);
+            syncLabelUI(slide);
+        }
+
+        function renderStoryJson() {
+            persistStorySlides();
+            persistDashboardState();
+            renderStoryPreview();
+        }
+
+        function renderSlideChips() {
+            const container = document.getElementById('slide-chips');
+            if (!container) return;
+            container.innerHTML = '';
+            storySlides.forEach((s, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `px-3 py-1 rounded-full text-xs font-semibold border ${idx === activeSlideIndex ? 'bg-blue-600 text-white border-blue-700' : 'bg-slate-200 text-slate-700 border-slate-300 hover:bg-slate-300'}`;
+                btn.innerText = s.title || `Slide ${s.id || idx + 1}`;
+                btn.onclick = () => { 
+                    activeSlideIndex = idx; 
+                    previewLastExtent = null; 
+                    populateStoryForm(); 
+                    renderStoryJson(); 
+                    renderSlideChips(); 
+                    renderStoryPreview(); 
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function addSlide(isInitial = false) {
+            const maxId = storySlides.reduce((m, s) => Math.max(m, Number(s.id) || 0), 0);
+            const clone = JSON.parse(JSON.stringify(BLANK_STORY_SLIDE));
+            clone.id = maxId + 1;
+            if (!isInitial) clone.title = `Slide ${clone.id}`;
+            storySlides.push(clone);
+            activeSlideIndex = storySlides.length - 1;
+            previewLastExtent = null;
+            populateStoryForm();
+            renderStoryJson();
+            renderSlideChips();
+            renderStoryPreview();
+        }
+
+        function deleteSlide() {
+            if (storySlides.length <= 1) return;
+            storySlides.splice(activeSlideIndex, 1);
+            activeSlideIndex = Math.max(0, activeSlideIndex - 1);
+            previewLastExtent = null;
+            populateStoryForm();
+            renderStoryJson();
+            renderSlideChips();
+            renderStoryPreview();
+        }
+
+        function renderStoryPreview() {
+            const slide = getActiveSlide();
+            if (!slide) return;
+            initPreviewMap();
+            if (!state.dataReady) { previewPending = true; return; }
+            document.getElementById('preview-title').innerText = slide.title;
+            document.getElementById('preview-body').innerText = slide.body;
+            applyPreviewMapState(slide, { showBounds: currentStoryTab === 'map' });
+        }
+
+        // Legacy no-op stubs for removed pinned chart functionality
+        function addPinnedStationChart() { return; }
+        function renderPinnedCharts() { return; }
+
+        function initPreviewMap() {
+            if (previewMap) { setTimeout(() => previewMap.updateSize(), 100); return; }
+            const target = document.getElementById('preview-map');
+            if (!target) return;
+            previewMap = new ol.Map({
+                target: 'preview-map',
+                layers: [
+                    new ol.layer.Tile({
+                        source: new ol.source.XYZ({
+                            url: 'https://mt0.google.com/vt/lyrs=s&hl=vi&x={x}&y={y}&z={z}'
+                        })
+                    })
+                ],
+                view: new ol.View({
+                    center: ol.proj.fromLonLat([108.5, 12.8]),
+                    zoom: 7
+                }),
+                controls: []
+            });
+            previewVectorLayer = new ol.layer.Vector({
+                source: new ol.source.Vector(),
+                style: new ol.style.Style({
+                    stroke: new ol.style.Stroke({ color: '#22c55e', width: 2 }),
+                    fill: new ol.style.Fill({ color: 'rgba(34,197,94,0.08)' })
+                })
+            });
+            previewMap.addLayer(previewVectorLayer);
+        }
+
+        function clearPreviewOverlays() {
+            if (!previewMap) return;
+            previewOverlays.forEach(ov => previewMap.removeOverlay(ov));
+            previewOverlays = [];
+        }
+
+        function clearPreviewLayers() {
+            if (!previewMap) return;
+            previewDynamicLayers.forEach(layer => previewMap.removeLayer(layer));
+            previewDynamicLayers = [];
+        }
+
+        function applyPreviewMapState(slide, options = {}) {
+            const showBounds = options.showBounds !== false;
+            initPreviewMap();
+            if (!previewMap) return;
+            if (!state.dataReady) { previewPending = true; return; }
+            clearPreviewLayers();
+            let targetExtent = null;
+            const extentArr = slide.bounds?.[0]?.extent || null;
+            const vectorSrc = previewVectorLayer?.getSource();
+
+            // Bounds preview only when requested (map tab)
+            if (showBounds && extentArr && extentArr.length === 4) {
+                const [minLon, minLat, maxLon, maxLat] = extentArr.map(Number);
+                const bl = ol.proj.fromLonLat([minLon, minLat]);
+                const tr = ol.proj.fromLonLat([maxLon, maxLat]);
+                targetExtent = ol.extent.boundingExtent([bl, tr]);
+                if (vectorSrc) {
+                    vectorSrc.clear();
+                    const poly = new ol.geom.Polygon([[
+                        [minLon, minLat], [minLon, maxLat], [maxLon, maxLat], [maxLon, minLat], [minLon, minLat]
+                    ]].map(ring => ring.map(coord => ol.proj.fromLonLat(coord))));
+                    vectorSrc.addFeature(new ol.Feature({ geometry: poly }));
+                }
+            } else if (vectorSrc) {
+                vectorSrc.clear();
+            }
+            updatePreviewMobileZone(extentArr, showBounds && !!targetExtent);
+
+            // If no explicit bounds, use last extent or data-driven fallback
+            if (!targetExtent && previewLastExtent) targetExtent = previewLastExtent;
+            if (!targetExtent && state.geoData && state.geoData.features?.length) {
+                const feats = new ol.format.GeoJSON().readFeatures({ type: 'FeatureCollection', features: state.geoData.features }, { featureProjection: 'EPSG:3857' });
+                const src = new ol.source.Vector({ features: feats });
+                targetExtent = src.getExtent();
+            }
+            if (!targetExtent || ol.extent.isEmpty(targetExtent)) {
+                targetExtent = DEFAULT_PREVIEW_EXTENT;
+            }
+            if (targetExtent && !ol.extent.isEmpty(targetExtent)) {
+                previewMap.getView().fit(targetExtent, { padding: [40, 40, 40, 40], duration: 300 });
+                previewLastExtent = targetExtent;
+            }
+            // Reposition mobile zone after fit animation settles
+            if (showBounds && extentArr && extentArr.length === 4) {
+                setTimeout(() => updatePreviewMobileZone(extentArr, true), 150);
+            }
+
+            // Filters
+            const riverFilter = new Set((slide.filters?.rivers || []).map(normalizeSimple));
+            const provinceFilter = new Set((slide.filters?.provinces || []).map(normalizeProvince));
+            const allowRiver = (name) => {
+                if (!riverFilter.size) return true;
+                const n = normalizeSimple(name);
+                return Array.from(riverFilter).some(r => r === n);
+            };
+            const allowProvince = (name) => {
+                if (!provinceFilter.size) return true;
+                return provinceFilter.has(normalizeProvince(name));
+            };
+            const localMode = (slide.rainMode === 'hourly' || slide.rainMode === 'daily') ? 'daily'
+                : (slide.rainMode === 'accumulated' || slide.rainMode === 'cumulative') ? 'accumulated'
+                : state.mode;
+            const startIdx = (() => {
+                const target = slide.timeline?.start;
+                if (!target) return 0;
+                const t = new Date(target).getTime();
+                if (Number.isNaN(t)) return 0;
+                let best = 0, diff = Infinity;
+                state.dates.forEach((d, i) => {
+                    const di = new Date(d).getTime();
+                    const delta = Math.abs(di - t);
+                    if (delta < diff) { diff = delta; best = i; }
+                });
+                return best;
+            })();
+
+            // Rivers
+            if (slide.layers?.river && state.riverData) {
+                const feats = new ol.format.GeoJSON().readFeatures(state.riverData, { featureProjection: 'EPSG:3857' })
+                    .filter(f => allowRiver(f.get('Basin') || f.get('name') || ''));
+                const riverLayer = new ol.layer.Vector({
+                    source: new ol.source.Vector({ features: feats }),
+                    style: new ol.style.Style({
+                        stroke: new ol.style.Stroke({ color: 'rgba(96,165,250,0.8)', width: 1.5 })
+                    }),
+                    zIndex: 10
+                });
+                previewMap.addLayer(riverLayer);
+                previewDynamicLayers.push(riverLayer);
+            }
+
+            // Stations & Lakes
+            const stationSource = new ol.source.Vector();
+            const lakeSource = new ol.source.Vector();
+            const waterAt = state.waterLevelMap[startIdx] || {};
+            const colors = slide.opacity || {};
+            const hydroOpacity = Number(colors.hydro ?? 0.9);
+            Object.values(state.stationMeta).forEach(meta => {
+                if (!Number.isFinite(meta.lat) || !Number.isFinite(meta.lon)) return;
+                if (!allowRiver(meta.river || meta.riverNorm || '')) return;
+                if (!allowProvince(meta.provinceRaw || meta.province || '')) return;
+                const record = waterAt[meta.station_id];
+                if (!record) return;
+                const isLake = inferStationType(meta.type) === 'lake';
+                const point = new ol.Feature({
+                    geometry: new ol.geom.Point(ol.proj.fromLonLat([meta.lon, meta.lat])),
+                    name: meta.name
+                });
+                if (isLake) {
+                    const status = getLakeStatus(record);
+                    const radius = computeLakePixelRadius(record.capacity, record.ratio);
+                    point.setStyle(new ol.style.Style({
+                        image: new ol.style.RegularShape({
+                            points: 3,
+                            radius,
+                            rotation: Math.PI,
+                            fill: new ol.style.Fill({ color: applyOpacity(status.color, hydroOpacity) }),
+                            stroke: new ol.style.Stroke({ color: applyOpacity('#fff', hydroOpacity), width: 1 })
+                        })
+                    }));
+                    lakeSource.addFeature(point);
+                } else {
+                    const status = getRiverStatus(record);
+                    point.setStyle(new ol.style.Style({
+                        image: new ol.style.Circle({
+                            radius: Math.max(4, 3 + (record.warningValue || 0) * 2),
+                            fill: new ol.style.Fill({ color: applyOpacity(status.color, hydroOpacity) }),
+                            stroke: new ol.style.Stroke({ color: applyOpacity(status.color, hydroOpacity), width: 1 })
+                        })
+                    }));
+                    stationSource.addFeature(point);
+                }
+            });
+            if (slide.layers?.stations && stationSource.getFeatures().length) {
+                const layer = new ol.layer.Vector({ source: stationSource, zIndex: 20 });
+                previewMap.addLayer(layer); previewDynamicLayers.push(layer);
+            }
+            if (slide.layers?.lakes && lakeSource.getFeatures().length) {
+                const layer = new ol.layer.Vector({ source: lakeSource, zIndex: 20 });
+                previewMap.addLayer(layer); previewDynamicLayers.push(layer);
+            }
+
+            // Fit fallback if no explicit bounds
+            if (!targetExtent) {
+                const allExtents = [];
+                if (previewVectorLayer?.getSource()?.getFeatures().length) allExtents.push(previewVectorLayer.getSource().getExtent());
+                previewDynamicLayers.forEach(l => {
+                    const ext = l.getSource()?.getExtent();
+                    if (ext && !ol.extent.isEmpty(ext)) allExtents.push(ext);
+                });
+                if (allExtents.length) {
+                    const combined = allExtents.reduce((acc, ext) => ol.extent.extend(acc, ext), ol.extent.createEmpty());
+                    if (!ol.extent.isEmpty(combined)) previewMap.getView().fit(combined, { padding: [40, 40, 40, 40], duration: 300 });
+                }
+            }
+
+            // Layers badges
+            const badgeBox = document.getElementById('preview-layer-badges');
+            if (badgeBox) {
+                badgeBox.innerHTML = '';
+                const layers = slide.layers || {};
+                const entries = [
+                    { key: 'rain', label: 'Mưa' },
+                    { key: 'river', label: 'Sông' },
+                    { key: 'stations', label: 'Trạm' },
+                    { key: 'lakes', label: 'Hồ' }
+                ];
+                entries.forEach(entry => {
+                    const on = layers[entry.key];
+                    const pill = document.createElement('div');
+                    pill.className = `px-2 py-1 rounded text-xs font-semibold border ${on ? 'bg-emerald-500/20 text-emerald-200 border-emerald-400/60' : 'bg-slate-700/60 text-slate-300 border-slate-500/70'}`;
+                    pill.innerText = `${entry.label}: ${on ? 'On' : 'Off'}`;
+                    badgeBox.appendChild(pill);
+                });
+            }
+
+            // Labels overlays
+            clearPreviewOverlays();
+            const labelBox = document.getElementById('preview-label-markers');
+            if (labelBox) labelBox.innerHTML = '';
+            if (slide.labels && slide.labels.length && extentArr && extentArr.length === 4) {
+                slide.labels.forEach((lb, idx) => {
+                    let coord = null;
+                    const targetMeta = Object.values(state.stationMeta || {}).find(m => normalizeNoAccent(m.name).includes(normalizeNoAccent(lb.name)));
+                    if (targetMeta && Number.isFinite(targetMeta.lon) && Number.isFinite(targetMeta.lat)) {
+                        coord = ol.proj.fromLonLat([targetMeta.lon, targetMeta.lat]);
+                    }
+                    if (!coord && extentArr?.length === 4) {
+                        const [minLon, minLat, maxLon, maxLat] = extentArr.map(Number);
+                        const fallbackPositions = [
+                            [minLon, maxLat],
+                            [maxLon, maxLat],
+                            [minLon, minLat],
+                            [maxLon, minLat],
+                            [(minLon + maxLon) / 2, (minLat + maxLat) / 2]
+                        ];
+                        coord = ol.proj.fromLonLat(fallbackPositions[idx % fallbackPositions.length]);
+                    }
+                    if (!coord) return;
+                    const el = document.createElement('div');
+                    el.className = 'text-xs font-semibold px-2 py-1 rounded-full shadow-lg';
+                    el.style.color = '#fff';
+                    el.style.background = lb.color || '#0ea5e9';
+                    el.innerText = lb.name;
+                    const ov = new ol.Overlay({ element: el, positioning: 'bottom-center', stopEvent: false, offset: [0, -6] });
+                    previewMap.addOverlay(ov);
+                    ov.setPosition(coord);
+                    previewOverlays.push(ov);
+                });
+            }
+        }
+
+        function copyStoryJson() {
+            navigator.clipboard.writeText(JSON.stringify(storySlides, null, 2));
+            const btnText = document.getElementById('copy-text');
+            const originalText = btnText.innerText;
+            btnText.innerText = "Copied!";
+            setTimeout(() => btnText.innerText = originalText, 2000);
+        }
+
+        function triggerStoryJsonUpload() {
+            const input = document.getElementById('story-json-file');
+            if (!input) return;
+            input.value = '';
+            input.click();
+        }
+
+        function handleStoryJsonFile(event) {
+            const file = event?.target?.files?.[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const parsed = JSON.parse(e.target?.result || '[]');
+                    if (!Array.isArray(parsed)) throw new Error("JSON must be an array of slides");
+                    storySlides = parsed;
+                    activeSlideIndex = 0;
+                    previewLastExtent = null;
+                    populateStoryForm();
+                    renderStoryJson();
+                    renderSlideChips();
+                    renderStoryPreview();
+                } catch (err) {
+                    alert("Invalid JSON: " + err.message);
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Global handlers for Story updates (attached to window for inline onclick)
+        window.updateStoryField = (field, value, type) => {
+            const slide = getActiveSlide();
+            if (!slide) return;
+            if (type === 'number') value = Number(value);
+            slide[field] = value;
+            renderStoryJson();
+            renderSlideChips();
+            renderStoryPreview();
+        };
+        window.updateStoryTimeline = (field, value) => {
+            const slide = getActiveSlide();
+            if (!slide) return;
+            slide.timeline[field] = value;
+            renderStoryJson();
+        };
+        window.updateStoryLayer = (layer, checked) => {
+            const slide = getActiveSlide();
+            if (!slide) return;
+            if (layer === 'rainMode') {
+                slide.rainMode = checked;
+            } else {
+                slide.layers[layer] = checked;
+            }
+            renderStoryJson();
+            renderStoryPreview();
+        };
+        window.updateStoryOpacity = (type, value) => {
+            const slide = getActiveSlide();
+            if (!slide) return;
+            const num = Number(value);
+            slide.opacity[type] = num;
+            renderStoryJson();
+            renderStoryPreview();
+        };
+
+        // --- Interactive Map Bounds Editor ---
+        function initStoryMapEditor() {
+            const container = document.getElementById('smap-wrapper');
+            const box = document.getElementById('sbounds-box');
+            const handle = document.getElementById('sresize-handle');
+            const ratioCheckbox = document.getElementById('slock-ratio');
+
+            // Initialize Map
+            storyMap = new ol.Map({
+                target: 'smap-target',
+                layers: [
+                    new ol.layer.Tile({
+                        source: new ol.source.XYZ({ url: 'https://mt0.google.com/vt/lyrs=s&hl=vi&x={x}&y={y}&z={z}' })
+                    })
+                ],
+                view: new ol.View({
+                    center: ol.proj.fromLonLat([109.0, 13.0]), // Approx Center
+                    zoom: 8
+                }),
+                controls: [] // Minimal controls
+            });
+
+            let isDragging = false, isResizing = false;
+            let startX, startY, startLeft, startTop, startW, startH;
+
+            // Helper to sync state to UI coords
+            function updateDataFromBox() {
+                if (!storyMap) return;
+                const mapRect = container.getBoundingClientRect();
+                const boxRect = box.getBoundingClientRect();
+                
+                // Calculate TopLeft and BottomRight pixels relative to map viewport
+                const tlPixel = [
+                    boxRect.left - mapRect.left,
+                    boxRect.top - mapRect.top
+                ];
+                const brPixel = [
+                    boxRect.right - mapRect.left,
+                    boxRect.bottom - mapRect.top
+                ];
+
+                const tlCoord = storyMap.getCoordinateFromPixel(tlPixel);
+                const brCoord = storyMap.getCoordinateFromPixel(brPixel);
+
+                if (!tlCoord || !brCoord) return;
+
+                const [minLon, maxLat] = ol.proj.toLonLat(tlCoord);
+                const [maxLon, minLat] = ol.proj.toLonLat(brCoord);
+
+                const slide = getActiveSlide();
+                if (!slide.bounds || !slide.bounds.length) slide.bounds = [{ extent: [minLon, minLat, maxLon, maxLat] }];
+                else slide.bounds[0].extent = [
+                    Number(minLon.toFixed(3)), Number(minLat.toFixed(3)),
+                    Number(maxLon.toFixed(3)), Number(maxLat.toFixed(3))
+                ];
+                updateCoordDisplay(minLon, minLat, maxLon, maxLat);
+                renderStoryJson();
+            }
+
+            function updateCoordDisplay(minLon, minLat, maxLon, maxLat) {
+                document.getElementById('scoord-min').innerText = `${minLon.toFixed(3)}, ${minLat.toFixed(3)}`;
+                document.getElementById('scoord-max').innerText = `${maxLon.toFixed(3)}, ${maxLat.toFixed(3)}`;
+                renderStoryJson();
+                renderStoryPreview();
+            }
+
+            // Sync on Map Move/Zoom
+            storyMap.on('moveend', updateDataFromBox);
+            storyMap.on('change:size', updateDataFromBox);
+
+            // DOM Interaction Handlers
+            box.addEventListener('mousedown', (e) => {
+                if(e.target === handle || handle.contains(e.target)) return;
+                e.preventDefault(); isDragging = true;
+                box.style.cursor = 'grabbing';
+                
+                const rect = box.getBoundingClientRect();
+                const parentRect = container.getBoundingClientRect();
+                
+                startX = e.clientX; startY = e.clientY;
+                startLeft = rect.left - parentRect.left; startTop = rect.top - parentRect.top;
+                
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+
+            handle.addEventListener('mousedown', (e) => {
+                e.preventDefault(); e.stopPropagation(); isResizing = true;
+                
+                const rect = box.getBoundingClientRect();
+                startX = e.clientX; startY = e.clientY;
+                startW = rect.width; startH = rect.height;
+                
+                document.addEventListener('mousemove', onMouseMove);
+                document.addEventListener('mouseup', onMouseUp);
+            });
+
+            function onMouseMove(e) {
+                const parentRect = container.getBoundingClientRect();
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+
+                if (isDragging) {
+                    let newLeft = startLeft + dx;
+                    let newTop = startTop + dy;
+                    const w = box.offsetWidth; const h = box.offsetHeight;
+                    
+                    if (newLeft < 0) newLeft = 0; 
+                    if (newTop < 0) newTop = 0;
+                    if (newLeft + w > parentRect.width) newLeft = parentRect.width - w;
+                    if (newTop + h > parentRect.height) newTop = parentRect.height - h;
+                    
+                    box.style.left = `${newLeft}px`;
+                    box.style.top = `${newTop}px`;
+                } else if (isResizing) {
+                    let newW = startW + dx;
+                    let newH = startH + dy;
+                    
+                    if (ratioCheckbox.checked) {
+                        const TARGET_RATIO = 16/9; // PC Ratio
+                        if (Math.abs(dx) > Math.abs(dy)) newH = newW / TARGET_RATIO;
+                        else newW = newH * TARGET_RATIO;
+                    }
+                    
+                    if (newW < 40) newW = 40; if (newH < 40) newH = 40;
+                    
+                    const currentLeft = parseFloat(box.style.left) || 0;
+                    const currentTop = parseFloat(box.style.top) || 0;
+                    
+                    if (currentLeft + newW > parentRect.width) newW = parentRect.width - currentLeft;
+                    if (currentTop + newH > parentRect.height) newH = parentRect.height - currentTop;
+                    
+                    if (ratioCheckbox.checked && (currentLeft + newW >= parentRect.width)) newH = newW / (16/9);
+                    
+                    box.style.width = `${newW}px`;
+                    box.style.height = `${newH}px`;
+                }
+                updateDataFromBox();
+            }
+
+            function onMouseUp() {
+                isDragging = false; isResizing = false; box.style.cursor = 'move';
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            }
+
+            // Initial Update
+            setTimeout(updateDataFromBox, 200); // Delay to ensure map ready
+        }
+
+        // =============================================================================
+        // 9. UI EVENT HANDLERS
+        // =============================================================================
+        function generateTicks() {
+            const container = document.getElementById('timeline-ticks');
+            container.innerHTML = '';
+            const step = Math.ceil(state.dates.length / 5);
+            state.dates.forEach((d, i) => { 
+                if (i % step === 0 || i === state.dates.length - 1) { 
+                    const div = document.createElement('div'); div.innerText = formatDateTick(d); container.appendChild(div); 
+                }
+            });
+        }
+
+        function populateProvinceFilter() {
+            DOM.filterProvinceList.innerHTML = '';
+            const provinces = new Map();
+            (state.geoData?.features || []).forEach(f => { if(f.properties["Tỉnh thành mới"]) provinces.set(normalizeProvince(f.properties["Tỉnh thành mới"]), f.properties["Tỉnh thành mới"]); });
+            const sorted = Array.from(provinces.values()).sort();
+            
+            sorted.forEach((p, idx) => {
+                const wrapper = document.createElement('label'); wrapper.className = "flex items-center gap-2 text-white text-xs";
+                const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = p; cb.className = "accent-blue-500";
+                if (filters.provinces.has(p)) cb.checked = true;
+                wrapper.appendChild(cb); wrapper.appendChild(document.createTextNode(p.replace(/^tỉnh\s+/i, '')));
+                DOM.filterProvinceList.appendChild(wrapper);
+            });
+        }
+
+        function populateRiverFilter() {
+            if (!DOM.filterRiverList) return;
+            DOM.filterRiverList.innerHTML = '';
+            const rivers = new Set();
+            Object.values(state.stationMeta).forEach(meta => { if (meta.river) rivers.add(meta.river); });
+            (state.riverData?.features || []).forEach(f => {
+                const basin = f.properties?.Basin;
+                if (basin) rivers.add(basin);
+            });
+            Array.from(rivers).sort().forEach(r => {
+                const wrapper = document.createElement('label'); wrapper.className = "flex items-center gap-2 text-white text-xs";
+                const cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = r; cb.className = "accent-blue-500";
+                if (filters.rivers.has(r)) cb.checked = true;
+                wrapper.appendChild(cb); wrapper.appendChild(document.createTextNode(r));
+                DOM.filterRiverList.appendChild(wrapper);
+            });
+        }
+
+        // --- Event Listeners ---
+        DOM.sliderStart.addEventListener('input', () => { 
+            stopTimelineAnimation();
+            if(parseInt(DOM.sliderStart.value) > parseInt(DOM.sliderEnd.value)) DOM.sliderEnd.value = DOM.sliderStart.value; 
+            requestViewUpdate(); 
+        });
+        DOM.sliderEnd.addEventListener('input', () => { 
+            stopTimelineAnimation();
+            if(parseInt(DOM.sliderEnd.value) < parseInt(DOM.sliderStart.value)) DOM.sliderStart.value = DOM.sliderEnd.value; 
+            requestViewUpdate(); 
+        });
+
+        function stopTimelineAnimation() {
+            if (timelinePlayTimer) {
+                clearInterval(timelinePlayTimer);
+                timelinePlayTimer = null;
+                DOM.playIcon?.classList.remove('hidden');
+                DOM.pauseIcon?.classList.add('hidden');
+                state.isPlaying = false;
+            }
+        }
+
+        if (DOM.timelinePlayPause) {
+            DOM.timelinePlayPause.addEventListener('click', () => {
+                if (state.isPlaying) {
+                    stopTimelineAnimation();
+                } else {
+                    state.isPlaying = true;
+                    DOM.playIcon?.classList.add('hidden');
+                    DOM.pauseIcon?.classList.remove('hidden');
+                    timelinePlayTimer = setInterval(() => {
+                        let current = parseInt(DOM.sliderEnd.value);
+                        if (current >= parseInt(DOM.sliderEnd.max)) { stopTimelineAnimation(); return; }
+                        DOM.sliderEnd.value = current + 1;
+                        requestViewUpdate();
+                    }, 200); // Animation speed
+                }
+            });
+        }
+
+        window.addEventListener('resize', () => { 
+            if(state.timelineStats.length) initTimelineChart();
+        });
+        
+        DOM.layerToggleBtn.addEventListener('click', () => DOM.layerPanel.classList.toggle('hidden'));
+        
+        DOM.legendToggleBtn.addEventListener('click', () => {
+            DOM.legendPanel.classList.toggle('hidden');
+            DOM.filterPanel.classList.add('hidden');
+        });
+        
+        DOM.filterToggleBtn.addEventListener('click', () => { DOM.filterPanel.classList.toggle('hidden'); DOM.legendPanel.classList.add('hidden'); });
+        DOM.filterApplyBtn.addEventListener('click', () => {
+            filters.provinces = new Set(Array.from(DOM.filterProvinceList.querySelectorAll('input:checked')).map(i => i.value));
+            filters.rivers = new Set(Array.from(DOM.filterRiverList.querySelectorAll('input:checked')).map(i => i.value));
+            initGeoLayer(); initStationLayer(); applyLayerVisibility(); updateView();
+        });
+        DOM.filterResetBtn.addEventListener('click', () => {
+            filters.provinces = new Set();
+            DOM.filterProvinceList.querySelectorAll('input').forEach(cb => cb.checked = false);
+            filters.rivers = new Set();
+            DOM.filterRiverList.querySelectorAll('input').forEach(cb => cb.checked = false);
+            initGeoLayer(); initStationLayer(); applyLayerVisibility(); updateView();
+        });
+
+        DOM.storyToggleBtn.addEventListener('click', toggleStoryModal);
+
+        DOM.chkStations.addEventListener('change', (e) => { layerVisibility.stations = e.target.checked; applyLayerVisibility(); schedulePersistDashboardState(); });
+        DOM.chkLakes.addEventListener('change', (e) => { layerVisibility.lakes = e.target.checked; applyLayerVisibility(); schedulePersistDashboardState(); });
+        DOM.chkRivers.addEventListener('change', (e) => { layerVisibility.river = e.target.checked; applyLayerVisibility(); schedulePersistDashboardState(); });
+        const bindOpacity = (el, key) => {
+            if (!el) return;
+            el.addEventListener('input', () => { layerOpacity[key] = parseInt(el.value, 10) / 100; updateView(); });
+        };
+        bindOpacity(DOM.opacityRain, 'rain');
+        bindOpacity(DOM.opacityHydro, 'hydro');
+        
+        // Rain mode selection now comes from story slides; UI radio no longer needed
+
+        // Start Application
+        initData();
+        // Init icons for dashboard (not modal yet)
+        if(window.lucide) lucide.createIcons();
+    </script>
+</body>
+</html>
