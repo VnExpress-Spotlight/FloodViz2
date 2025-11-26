@@ -1,107 +1,90 @@
 [
   {
     "id": 1,
-    "title": "“Lá chắn” cuối cùng",
-    "body": "Hồ Sông Ba Hạ là chốt chặn cuối cùng của hệ thống bậc thang sông Ba. Dung tích phòng lũ là 125 triệu m3, chiếm 1/3 tổng dung tích hồ chứa.",
-    "timeline": { "start": "2025-11-14T01:00:00", "end": "2025-11-14T20:00:00", "animate": false, "snapToStart": true },
+    "title": "Mùa mưa lịch sử",
+    "body": "Từ 15–21/11, Nam Trung Bộ hứng chịu đợt mưa kéo dài, tổng lượng phổ biến 500–1.200 mm. Tâm mưa dịch dần từ Huế – Đà Nẵng xuống phía đông Đắk Lắk, gây ngập kỷ lục ở nhiều tỉnh trong khu vực.",
+    "timeline": { "start": "2025-11-15T00:00:00", "end": "2025-11-21T23:00:00", "animate": false, "snapToStart": true },
     "timelineMiniChart": false,
-    "rainMode": "hourly",
-    "layers": { "rain": false, "river": true, "stations": false, "lakes": true },
-    "filters": { "rivers": ["Ba"], "provinces": [] },
-    "bounds": [{ "extent": [107, 11.6, 109.9, 15] }],
-    "labels": [{ "name": "Hồ Sông Ba Hạ", "type": "lake", "color": "#0ea5e9" }],
-    "opacity": { "rain": 0.75, "hydro": 0.9 }
+    "rainMode": "accumulated",
+    "layers": { "rain": true, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": [] },
+    "bounds": [{ "extent": [107, 10.5, 109.7, 16.6] }],
+    "labels": [],
+    "opacity": { "rain": 0.7, "hydro": 0.9 }
   },
   {
     "id": 2,
-    "title": "Xả nước đón lũ",
-    "body": "28 tiếng trước đợt mưa lớn (20h ngày 14/11), hồ chủ động xả nước hạ thấp mực hồ (lượng xả > về) theo lệnh vận hành của UBND tỉnh Đăk Lăk.",
-    "timeline": { "start": "2025-11-14T20:00:00", "end": "2025-11-16T10:00:00", "animate": false, "snapToStart": true },
-    "timelineMiniChart": true,
-    "rainMode": "hourly",
-    "layers": { "rain": false, "river": true, "stations": true, "lakes": true },
-    "filters": { "rivers": ["Ba"], "provinces": [] },
-    "bounds": [{ "extent": [108.85, 12.99, 109.05, 13.08] }],
-    "labels": [
-      { "name": "Hồ Sông Ba Hạ", "type": "lake", "color": "#0ea5e9" },
-      { "name": "Củng Sơn", "type": "station", "color": "#22c55e" }
-    ],
-    "opacity": { "rain": 0.75, "hydro": 0.9 }
+    "title": "Huế - Đà Nẵng mưa lớn",
+    "body": "Ba ngày đầu, mưa lớn tập trung ở Huế, Đà Nẵng, và một phần Quảng Ngãi và Gia Lai (Bình Định cũ). Lượng mưa phổ biến từ 250-500 mm, có nơi trên 700 mm. ",
+    "timeline": { "start": "2025-11-15T00:00:00", "end": "2025-11-18T00:00:00", "animate": false, "snapToStart": true },
+    "timelineMiniChart": false,
+    "rainMode": "accumulated",
+    "layers": { "rain": true, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": ["TP Huế", "TP Đà Nẵng"] },
+    "bounds": [{ "extent": [107.3, 14.1, 108.45, 17.4] }],
+    "labels": [],
+    "opacity": { "rain": 0.7, "hydro": 0.9 }
   },
   {
     "id": 3,
-    "title": "Vận hành duy trì",
-    "body": "10h ngày 16/11, khi mực nước tại hồ giảm xuống mực nước đón lũ lớn nhất theo quy định sau ngày 15/11 (103 m), hồ chuyển sang vận hành duy trì với lưu lượng xả xấp xỉ lượng nước về hồ.",
-    "timeline": { "start": "2025-11-16T10:00:00", "end": "2025-11-18T19:00:00", "animate": false, "snapToStart": true },
-    "timelineMiniChart": true,
+    "title": "Lũ chồng lũ",
+    "body": "Mưa lớn khiến nước sông ở trạm Phú Ốc và Ái Nghĩa vượt báo động 3, Huế và Đà Nẵng tái ngập từ 17/11. Đây là lần thứ tư Huế ngập do mưa lũ trong chưa đầy một tháng.",
+    "timeline": { "start": "2025-11-16T12:00:00", "end": "2025-11-17T22:00:00", "animate": false, "snapToStart": true },
+    "timelineMiniChart": false,
     "rainMode": "hourly",
-    "layers": { "rain": false, "river": true, "stations": true, "lakes": true },
-    "filters": { "rivers": ["Ba"], "provinces": [] },
-    "bounds": [{ "extent": [108.85, 12.99, 109.05, 13.08] }],
+    "layers": { "rain": false, "river": true, "stations": true, "lakes": false },
+    "filters": { "rivers": ["Hương", "Hương - Bồ", "Vu Gia", "Vu Gia - Thu Bồn"], "provinces": [] },
+    "bounds": [{ "extent": [107, 15, 108.4, 17] }],
     "labels": [
-      { "name": "Hồ Sông Ba Hạ", "type": "lake", "color": "#0ea5e9" },
-      { "name": "Củng Sơn", "type": "station", "color": "#22c55e" }
+      { "name": "Phú Ốc", "type": "station", "color": "#0ea5e9" },
+      { "name": "Ái Nghĩa", "type": "station", "color": "#22c55e" }
     ],
     "opacity": { "rain": 0.75, "hydro": 0.9 }
   },
   {
     "id": 4,
-    "title": "“Cắt lũ” lần đầu",
-    "body": "19h ngày 18/11, “tâm mưa” bắt đầu dịch chuyển dần về Đăk Lăk. Mực nước tại trạm Củng Sơn (hạ nguồn sông Ba) lên báo động 3. Theo quy định, hồ chuyển sang vận hành giảm lũ (lượng xả < đến), kéo dài liên tục 12 giờ.",
-    "timeline": { "start": "2025-11-18T19:00:00", "end": "2025-11-19T09:00:00", "animate": false, "snapToStart": true },
-    "timelineMiniChart": true,
+    "title": "Mưa kỷ lục ở Đăk Lăk",
+    "body": "Từ 18/11, tâm mưa dịch chuyển về Đăk Lăk và Khánh Hoà. Đến 11h00 ngày 19/11, một số trạm ở Đăk Lăk ghi nhận lượng mưa kỷ lục từ 580-660 mm.",
+    "timeline": { "start": "2025-11-18T00:00:00", "end": "2025-11-19T12:00:00", "animate": false, "snapToStart": true },
+    "timelineMiniChart": false,
     "rainMode": "accumulated",
-    "layers": { "rain": true, "river": true, "stations": true, "lakes": true },
+    "layers": { "rain": true, "river": false, "stations": false, "lakes": false },
     "filters": { "rivers": ["Ba"], "provinces": [] },
     "bounds": [{ "extent": [106.6, 10.6, 110.6, 16.5] }],
-    "labels": [{ "name": "Củng Sơn", "type": "station", "color": "#22c55e" }],
+    "labels": [],
     "opacity": { "rain": 0.75, "hydro": 0.9 }
   },
   {
     "id": 5,
-    "title": "Xả lũ lịch sử",
-    "body": "Đăk Lăk mưa ngày càng lớn từ sáng 19/11. Đến 9h, hồ đầy đến mực nước dâng bình thường, không thể tiếp tục cắt lũ, nước về gần như được xả trực tiếp xuống hạ du. Chỉ trong 8 tiếng, lượng nước xả tăng 5.900 m3/s, đạt đỉnh ở mức 16.100 m3/s vào 17h cùng ngày - vượt mức lịch sử năm 2009 là 14.500 m3/s. Trước đó một giờ, mực nước tại trạm Củng Sơn ở hạ nguồn sông Ba vượt lịch sử 1993.",
-    "timeline": { "start": "2025-11-19T09:00:00", "end": "2025-11-19T17:00:00", "animate": false, "snapToStart": true },
-    "timelineMiniChart": true,
+    "title": "Lũ lịch sử",
+    "body": "Mưa lớn tiếp tục từ chiều tối 19 đến sáng 20/11 khiến mực nước tại trạm Củng Sơn và Phú Lâm (Sông Ba - Đăk Lăk) vượt lũ lịch sử năm 1993.",
+    "timeline": { "start": "2025-11-19T13:00:00", "end": "2025-11-20T06:00:00", "animate": false, "snapToStart": true },
+    "timelineMiniChart": false,
     "rainMode": "hourly",
-    "layers": { "rain": false, "river": true, "stations": true, "lakes": true },
+    "layers": { "rain": false, "river": true, "stations": true, "lakes": false },
     "filters": { "rivers": ["Ba"], "provinces": [] },
-    "bounds": [{ "extent": [108.85, 12.99, 109.05, 13.08] }],
+    "bounds": [{ "extent": [108.88, 12.8, 109.5, 13.5] }],
     "labels": [
-      { "name": "Hồ Sông Ba Hạ", "type": "lake", "color": "#0ea5e9" },
+      { "name": "Phú Lâm", "type": "station", "color": "#0ea5e9" },
       { "name": "Củng Sơn", "type": "station", "color": "#22c55e" }
     ],
     "opacity": { "rain": 0.75, "hydro": 0.9 }
   },
   {
     "id": 6,
-    "title": "“Cắt lũ” lần hai",
-    "body": "Khi nhận lệnh của Chủ tịch UBND tỉnh chiều cùng ngày, hồ giảm xả và sử dụng dung tích bảo vệ công trình để “cắt lũ” lần hai cho hạ du từ 20h ngày 19/11, kéo dài đến 19h ngày 20/11 thì chuyển sang vận hành duy trì (lượng đến = xả).",
-    "timeline": { "start": "2025-11-19T20:00:00", "end": "2025-11-20T19:00:00", "animate": false, "snapToStart": true },
-    "timelineMiniChart": true,
+    "title": "Vượt khả năng điều tiết",
+    "body": "Lũ trên sông Ba vượt xa khả năng điều tiết của 5 hồ chứa có chức năng giảm lũ cho hạ du. Hồ Sông Ba Hạ, chốt chặn cuối cùng, chỉ giữ lại 26% tổng lượng lũ trong đợt cao điểm. Phần còn lại dồn xuống hạ du trong thời gian rất ngắn.",
+    "timeline": { "start": "2025-11-19T13:00:00", "end": "2025-11-20T19:00:00", "animate": false, "snapToStart": true },
+    "timelineMiniChart": false,
     "rainMode": "hourly",
-    "layers": { "rain": false, "river": true, "stations": true, "lakes": true },
+    "layers": { "rain": false, "river": true, "stations": false, "lakes": true },
     "filters": { "rivers": ["Ba"], "provinces": [] },
-    "bounds": [{ "extent": [108.7, 12.7, 109.35, 13.55] }],
+    "bounds": [{ "extent": [108, 13, 109.5, 13.8] }],
     "labels": [
-      { "name": "Củng Sơn", "type": "station", "color": "#22c55e" },
-      { "name": "Phú Lâm", "type": "station", "color": "#fbbf24" }
-    ],
-    "opacity": { "rain": 0.75, "hydro": 0.9 }
-  },
-  {
-    "id": 7,
-    "title": "Lũ lịch sử",
-    "body": "1 giờ ngày 20/11, mực nước tại trạm Củng Sơn ở hạ nguồn sông Ba đạt đỉnh 40,99 m, vượt lịch sử 1993 là 1,09 m. Hai giờ sau, mực nước tại trạm Phú Lâm cũng xác lập kỷ lục mới trong 32 năm với mực nước 5,4 m, cao hơn lũ lịch sử 1993 là 0,19 m. Toàn tỉnh Phú Yên cũ - hạ lưu sông Ba - chìm trong biển nước.",
-    "timeline": { "start": "2025-11-20T01:00:00", "end": "2025-11-20T03:00:00", "animate": false, "snapToStart": true },
-    "timelineMiniChart": true,
-    "rainMode": "accumulated",
-    "layers": { "rain": true, "river": true, "stations": true, "lakes": true },
-    "filters": { "rivers": [], "provinces": ["Phú Yên"] },
-    "bounds": [{ "extent": [108.7, 12.7, 109.35, 13.55] }],
-    "labels": [
-      { "name": "Củng Sơn", "type": "station", "color": "#22c55e" },
-      { "name": "Phú Lâm", "type": "station", "color": "#fbbf24" }
+      { "name": "Sông Ba Hạ", "type": "lake", "color": "#22c55e" },
+      { "name": "Kanak", "type": "lake", "color": "#22c55e" },
+      { "name": "Ayun Hạ", "type": "lake", "color": "#22c55e" },
+      { "name": "Sông Hinh", "type": "lake", "color": "#22c55e" }
     ],
     "opacity": { "rain": 0.75, "hydro": 0.9 }
   }
