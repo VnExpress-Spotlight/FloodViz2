@@ -2,7 +2,7 @@
   {
     "id": 1,
     "title": "Mùa mưa lịch sử",
-    "body": "Từ 15–21/11, Nam Trung Bộ hứng chịu đợt mưa kéo dài, tổng lượng phổ biến 500–1.200 mm. Tâm mưa dịch dần từ Huế – Đà Nẵng xuống phía đông Đắk Lắk, gây ngập kỷ lục ở nhiều tỉnh trong khu vực.",
+    "body": "Từ 15 đến 21/11, Nam Trung Bộ hứng chịu đợt mưa kéo dài. Tổng lượng phổ biến 500–1.200 mm. Tâm mưa dịch dần từ Huế - Đà Nẵng xuống phía đông Đắk Lắk, gây ngập kỷ lục dọc các tỉnh Nam Trung Bộ - từ Huế đến Khánh Hoà.",
     "timeline": { "start": "2025-11-15T00:00:00", "end": "2025-11-21T23:00:00", "animate": false, "snapToStart": true },
     "timelineMiniChart": false,
     "rainMode": "accumulated",
@@ -14,8 +14,8 @@
   },
   {
     "id": 2,
-    "title": "Huế - Đà Nẵng mưa lớn",
-    "body": "Ba ngày đầu, mưa lớn tập trung ở Huế, Đà Nẵng, và một phần Quảng Ngãi và Gia Lai (Bình Định cũ). Lượng mưa phổ biến từ 250-500 mm, có nơi trên 700 mm. ",
+    "title": "",
+    "body": "Ba ngày đầu, mưa lớn tập trung ở Huế, Đà Nẵng, và một phần Quảng Ngãi, Gia Lai. Lượng mưa phổ biến 250-500 mm, có nơi trên 700 mm. ",
     "timeline": { "start": "2025-11-15T00:00:00", "end": "2025-11-18T00:00:00", "animate": false, "snapToStart": true },
     "timelineMiniChart": false,
     "rainMode": "accumulated",
@@ -27,8 +27,8 @@
   },
   {
     "id": 3,
-    "title": "Lũ chồng lũ",
-    "body": "Mưa lớn khiến nước sông ở trạm Phú Ốc và Ái Nghĩa vượt báo động 3, Huế và Đà Nẵng tái ngập từ 17/11. Đây là lần thứ tư Huế ngập do mưa lũ trong chưa đầy một tháng.",
+    "title": "",
+    "body": "Mưa lớn khiến nước sông ở trạm Phú Ốc và Ái Nghĩa vượt báo động 3, Huế và Đà Nẵng tái ngập từ 17/11. Đây là lần thứ tư trong chưa đầy một tháng, Huế ngập do mưa lũ.",
     "timeline": { "start": "2025-11-16T12:00:00", "end": "2025-11-17T22:00:00", "animate": false, "snapToStart": true },
     "timelineMiniChart": false,
     "rainMode": "hourly",
@@ -43,8 +43,8 @@
   },
   {
     "id": 4,
-    "title": "Ngập nhanh ở hạ du Huế",
-    "body": "Mưa lớn khiến nước trên các sông tăng nhanh, hạ du Huế ngập 0,3-0,5 m. Miền núi Đà Nẵng xuất hiện thêm dấu hiệu sạt trượt đất, đặc biệt là vụ sạt lở tại xã Hùng Sơn khiến 3 người mất tích. Đến 18h ngày 17/11, mưa lũ ở Trung Bộ khiến 12 người chết và mất tích, 19 người bị thương.",
+    "title": "",
+    "body": "Mưa lớn khiến nước trên các sông tăng nhanh, hạ du Huế ngập 0,3-0,5 m. Miền núi Đà Nẵng xuất hiện nhiều vụ sạt trượt đất. Trong đó, vụ sạt lở tại xã Hùng Sơn khiến 3 người mất tích. Đến 18h ngày 17/11, mưa lũ ở Trung Bộ khiến 12 người chết và mất tích, 19 người bị thương.",
     "timelineMiniChart": false,
     "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
     "filters": { "rivers": [], "provinces": [] },
@@ -52,12 +52,12 @@
     "media": {
       "type": "image",
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/lu-mie-n-trung-20-1764156025-2161-1764156140.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=7i2MfTOU_Gv6tcsO58mgZA",
-      "caption": "Ảnh: Võ Thạnh"
+      "caption": "Tuyến đường Bạch Đằng ở phường Phú Xuân ngập 0,5 m. Ảnh: Võ Thạnh"
     }
   },
   {
     "id": 5,
-    "title": "Mưa kỷ lục ở Đăk Lăk",
+    "title": "Lũ lịch sử ở Đăk Lăk",
     "body": "Từ 18/11, tâm mưa dịch chuyển về Đăk Lăk và Khánh Hoà. Đến 11h00 ngày 19/11, một số trạm ở Đăk Lăk ghi nhận lượng mưa kỷ lục từ 580-660 mm.",
     "timeline": { "start": "2025-11-18T00:00:00", "end": "2025-11-19T12:00:00", "animate": false, "snapToStart": true },
     "timelineMiniChart": false,
@@ -70,8 +70,8 @@
   },
   {
     "id": 6,
-    "title": "Lũ lịch sử",
-    "body": "Mưa lớn tiếp tục từ chiều tối 19 đến sáng 20/11 khiến mực nước tại trạm Củng Sơn và Phú Lâm (Sông Ba - Đăk Lăk) vượt lũ lịch sử năm 1993.",
+    "title": "",
+    "body": "Mưa lớn liên tục từ 19 đến sáng 20/11 khiến mực nước tại trạm Củng Sơn và Phú Lâm (Sông Ba - Đăk Lăk) vượt lũ lịch sử năm 1993.",
     "timeline": { "start": "2025-11-19T13:00:00", "end": "2025-11-20T06:00:00", "animate": false, "snapToStart": true },
     "timelineMiniChart": false,
     "rainMode": "hourly",
@@ -86,8 +86,8 @@
   },
   {
     "id": 7,
-    "title": "Vượt khả năng điều tiết",
-    "body": "Lũ trên sông Ba vượt xa khả năng điều tiết của 5 hồ chứa có chức năng giảm lũ cho hạ du. Hồ Sông Ba Hạ, chốt chặn cuối cùng, chỉ giữ lại 26% tổng lượng lũ trong đợt cao điểm. Phần còn lại dồn xuống hạ du trong thời gian rất ngắn.",
+    "title": "",
+    "body": "Lũ trên sông Ba vượt xa khả năng điều tiết của 5 hồ chứa có chức năng giảm lũ cho hạ du. Hồ thuỷ điện Sông Ba Hạ, lá chắn cuối cùng, chỉ giữ lại được 26% tổng lượng lũ trong đợt cao điểm, phải xả vượt mức lịch sử 16.100 m3/s. Phần còn lại dồn xuống hạ du.",
     "timeline": { "start": "2025-11-19T13:00:00", "end": "2025-11-20T19:00:00", "animate": false, "snapToStart": true },
     "timelineMiniChart": false,
     "rainMode": "hourly",
@@ -104,7 +104,7 @@
   },
   {
     "id": 8,
-    "title": "Rốn lũ Hòa Thịnh - Đông Hoà",
+    "title": "",
     "body": "Lũ từ thượng nguồn đổ về kết hợp lượng mưa nội tại lớn khiến 34 xã phường khu vực Phú Yên cũ ngập nặng. Trong đó, xã Hòa Thịnh và phường Đông Hoà là rốn lũ do địa hình vùng trũng và nằm ở hạ du các sông trước khi đổ ra biển.",
     "timelineMiniChart": false,
     "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
@@ -118,8 +118,8 @@
   },
   {
     "id": 9,
-    "title": "Thiệt hại nhân lực",
-    "body": "Đến 26/11, mưa lũ ở Nam Trung Bộ khiến 108 người chết và mất tích. Các địa phương thiệt hại lớn nhất là Đăk Lăk , Khánh Hòa, Lâm Đồng, Gia Lai, Huế, Đà Nẵng, Quảng Trị. Riêng “rốn lũ” Hòa Thịnh ghi nhận 25 người chết, chiếm gần 40% số nạn nhân toàn tỉnh Đăk Lăk.",
+    "title": "Thiệt hại ",
+    "body": "Đến 26/11, mưa lũ ở Nam Trung Bộ khiến 108 người chết và mất tích. Trong đó, Đăk Lăk thiệt hại nặng nề nhất với 63 người thiệt mạng. Riêng “rốn lũ” Hòa Thịnh ghi nhận 25 người chết, chiếm gần 40% số nạn nhân toàn tỉnh Đăk Lăk.",
     "timelineMiniChart": false,
     "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
     "filters": { "rivers": [], "provinces": [] },
@@ -127,13 +127,13 @@
     "media": {
       "type": "image",
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/dak-lak-6-1764156022-176415611-4970-5213-1764156139.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=J9rwTFF0cA9n5r2UdYmKaw",
-      "caption": "Ảnh: Thanh Tùng"
+      "caption": "Ngôi nhà ở rốn lũ Hoà Thịnh tan hoang sau lũ. Ảnh: Thanh Tùng"
     }
   },
   {
     "id": 10,
-    "title": "Nhà sập, hư hỏng",
-    "body": "Mưa lũ trong các ngày 16-21/11 đã làm 426 nhà đổ sập, tập trung ở Đăk Lăk, Gia Lai và Khánh Hòa và gần 2.100 nhà hư hỏng. Tại Khánh Hoà, phường Tây Nha Trang là nơi chịu ảnh hưởng ngập lụt nặng nhất của các phường trung tâm tỉnh.",
+    "title": "",
+    "body": "Mưa lũ gây ngập lụt, thiệt hại nhiều cơ sở hạ tầng như giao thông, trường học... tại các tỉnh Đăk Lăk, Gia Lai, Khánh Hòa. Đến 26/12, nhiều vị trí trên Quốc lộ 20 và 27C qua Khánh Hoà, Lâm Đồng còn ách tắc.",
     "timelineMiniChart": false,
     "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
     "filters": { "rivers": [], "provinces": [] },
@@ -141,13 +141,13 @@
     "media": {
       "type": "image",
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/nt-38-1764156022-1764156118-6206-1764156139.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=RTue_v9KCSVdrPRdhTDgnA",
-      "caption": "Ảnh: Thanh Tùng"
+      "caption": "Nút giao thông tại phường Tây Nha Trang (Khánh Hoà) chịu ảnh hưởng ngập lụt nặng nề.Ảnh: Thanh Tùng"
     }
   },
   {
     "id": 11,
-    "title": "Đợt lũ 50 năm mới có",
-    "body": "Theo Cục Khí tượng Thuỷ văn (Bộ Nông nghiệp Môi trường), đợt lũ Nam Trung Bộ 15-21/11 lớn nhất 50 năm, đồng thời phá hoặc gần chạm ngưỡng lịch sử nhiều lưu vực.",
+    "title": "",
+    "body": "Theo Cục Khí tượng Thuỷ văn (Bộ Nông nghiệp Môi trường), đợt lũ Nam Trung Bộ lớn nhất 50 năm, khiến nhiều lưu vực gần chạm hoặc vượt mức lịch sử.",
     "timelineMiniChart": false,
     "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
     "filters": { "rivers": [], "provinces": [] },
@@ -160,8 +160,8 @@
   },
   {
     "id": 12,
-    "title": "Thiệt hại kinh tế",
-    "body": "Đây là thiệt hại của đợt mưa lũ",
+    "title": "",
+    "body": "Không chỉ gây thiệt hại nặng nề về nhân mạng, đợt lũ lịch sử gây thiệt hại kinh tế hơn 13.000 tỷ đồng tại các tỉnh Nam Trung Bộ.",
     "timelineMiniChart": false,
     "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
     "filters": { "rivers": [], "provinces": [] },
@@ -188,7 +188,7 @@
   },
   {
     "id": 14,
-    "title": "Mất trắng lồng tôm",
+    "title": "",
     "body": "\"Chưa khi nào như bây giờ, đi ra bè không thấy một con tôm nào còn sống\", ông Nguyễn Văn Hạnh, 45 tuổi, phường Sông Cầu (Đăk Lăk) bất lực khi không cứu được bè tôm, nguồn thu nhập chính của gia đình 5 người.",
     "timelineMiniChart": false,
     "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
@@ -202,8 +202,8 @@
   },
   {
     "id": 15,
-    "title": "Leo nóc nhà thoát nạn",
-    "body": "\"Ông bị tai biến, bà mắc bệnh nền nhưng sống chết phải cố leo lên nóc nhà thoát nạn, nhà cửa giờ không còn gì, mấy bao lúa giống cũng mất hết\", bà Phan Thị Hoà, 75 tuổi ở thôn Mỹ Điền, xã Hòa Thịnh cùng chồng 78 tuổi cho biết mưa ngập sâu hai vợ chồng phải leo nóc nhà chờ cứu hộ.",
+    "title": "",
+    "body": "\"Ông bị tai biến, bà mắc bệnh nền nhưng sống chết phải cố leo lên nóc nhà thoát nạn. Nhà cửa giờ không còn gì, mấy bao lúa giống cũng mất hết\", bà Phan Thị Hoà, 75 tuổi ở thôn Mỹ Điền, xã Hòa Thịnh cùng chồng 78 tuổi kể lại.",
     "timelineMiniChart": false,
     "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
     "filters": { "rivers": [], "provinces": [] },
@@ -216,7 +216,7 @@
   },
   {
     "id": 16,
-    "title": "Thoát chết trong gang tấc",
+    "title": "",
     "body": "\"Khi ngồi trên sàn nhà có mái tôn của hàng xóm, ba mẹ con tôi như sống lại\", chị Trần Thị Ngọc Kim En (35 tuổi, thôn Phú Hữu) ôm cảm ơn \"ân nhân\" Trần Tấn Điện (30 tuổi, trung uý công an xã Sơn Thành) - người cứu ba mẹ con chị vào sáng ngày 20/11.",
     "timelineMiniChart": false,
     "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
