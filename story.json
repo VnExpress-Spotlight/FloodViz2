@@ -43,6 +43,20 @@
   },
   {
     "id": 4,
+    "title": "Ngập nhanh ở hạ du Huế",
+    "body": "Mưa lớn khiến nước trên các sông tăng nhanh, hạ du Huế ngập 0,3-0,5 m. Miền núi Đà Nẵng xuất hiện thêm dấu hiệu sạt trượt đất, đặc biệt là vụ sạt lở tại xã Hùng Sơn khiến 3 người mất tích. Đến 18h ngày 17/11, mưa lũ ở Trung Bộ khiến 12 người chết và mất tích, 19 người bị thương.",
+    "timelineMiniChart": false,
+    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": [] },
+    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "media": {
+      "type": "image",
+      "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/lu-mie-n-trung-20-1764156025-2161-1764156140.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=7i2MfTOU_Gv6tcsO58mgZA",
+      "caption": "Ảnh: Võ Thạnh"
+    }
+  },
+  {
+    "id": 5,
     "title": "Mưa kỷ lục ở Đăk Lăk",
     "body": "Từ 18/11, tâm mưa dịch chuyển về Đăk Lăk và Khánh Hoà. Đến 11h00 ngày 19/11, một số trạm ở Đăk Lăk ghi nhận lượng mưa kỷ lục từ 580-660 mm.",
     "timeline": { "start": "2025-11-18T00:00:00", "end": "2025-11-19T12:00:00", "animate": false, "snapToStart": true },
@@ -55,7 +69,7 @@
     "opacity": { "rain": 0.75, "hydro": 0.9 }
   },
   {
-    "id": 5,
+    "id": 6,
     "title": "Lũ lịch sử",
     "body": "Mưa lớn tiếp tục từ chiều tối 19 đến sáng 20/11 khiến mực nước tại trạm Củng Sơn và Phú Lâm (Sông Ba - Đăk Lăk) vượt lũ lịch sử năm 1993.",
     "timeline": { "start": "2025-11-19T13:00:00", "end": "2025-11-20T06:00:00", "animate": false, "snapToStart": true },
@@ -71,7 +85,7 @@
     "opacity": { "rain": 0.75, "hydro": 0.9 }
   },
   {
-    "id": 6,
+    "id": 7,
     "title": "Vượt khả năng điều tiết",
     "body": "Lũ trên sông Ba vượt xa khả năng điều tiết của 5 hồ chứa có chức năng giảm lũ cho hạ du. Hồ Sông Ba Hạ, chốt chặn cuối cùng, chỉ giữ lại 26% tổng lượng lũ trong đợt cao điểm. Phần còn lại dồn xuống hạ du trong thời gian rất ngắn.",
     "timeline": { "start": "2025-11-19T13:00:00", "end": "2025-11-20T19:00:00", "animate": false, "snapToStart": true },
@@ -79,7 +93,7 @@
     "rainMode": "hourly",
     "layers": { "rain": false, "river": true, "stations": false, "lakes": true },
     "filters": { "rivers": ["Ba"], "provinces": [] },
-    "bounds": [{ "extent": [108, 13, 109.5, 13.8] }],
+    "bounds": [{ "extent": [108, 12.7, 109.8, 14.2] }],
     "labels": [
       { "name": "Sông Ba Hạ", "type": "lake", "color": "#22c55e" },
       { "name": "Kanak", "type": "lake", "color": "#22c55e" },
@@ -87,5 +101,131 @@
       { "name": "Sông Hinh", "type": "lake", "color": "#22c55e" }
     ],
     "opacity": { "rain": 0.75, "hydro": 0.9 }
+  },
+  {
+    "id": 8,
+    "title": "Rốn lũ Hòa Thịnh - Đông Hoà",
+    "body": "Lũ từ thượng nguồn đổ về kết hợp lượng mưa nội tại lớn khiến 34 xã phường khu vực Phú Yên cũ ngập nặng. Trong đó, xã Hòa Thịnh và phường Đông Hoà là rốn lũ do địa hình vùng trũng và nằm ở hạ du các sông trước khi đổ ra biển.",
+    "timelineMiniChart": false,
+    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": [] },
+    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "media": {
+      "type": "image",
+      "src": "https://i1-vnexpress.vnecdn.net/2025/11/22/20251122-nga-p-3908-1763828211.png?w=0&h=0&q=100&dpr=2&fit=crop&s=3rGu0wII0g6ox8xPeTRvqw",
+      "caption": "Dữ liệu: VegaCosmos & VSGA. Đồ họa: Quang Tuệ"
+    }
+  },
+  {
+    "id": 9,
+    "title": "Thiệt hại nhân lực",
+    "body": "Đến 26/11, mưa lũ ở Nam Trung Bộ khiến 108 người chết và mất tích. Các địa phương thiệt hại lớn nhất là Đăk Lăk , Khánh Hòa, Lâm Đồng, Gia Lai, Huế, Đà Nẵng, Quảng Trị. Riêng “rốn lũ” Hòa Thịnh ghi nhận 25 người chết, chiếm gần 40% số nạn nhân toàn tỉnh Đăk Lăk.",
+    "timelineMiniChart": false,
+    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": [] },
+    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "media": {
+      "type": "image",
+      "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/dak-lak-6-1764156022-176415611-4970-5213-1764156139.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=J9rwTFF0cA9n5r2UdYmKaw",
+      "caption": "Ảnh: Thanh Tùng"
+    }
+  },
+  {
+    "id": 10,
+    "title": "Nhà sập, hư hỏng",
+    "body": "Mưa lũ trong các ngày 16-21/11 đã làm 426 nhà đổ sập, tập trung ở Đăk Lăk, Gia Lai và Khánh Hòa và gần 2.100 nhà hư hỏng. Tại Khánh Hoà, phường Tây Nha Trang là nơi chịu ảnh hưởng ngập lụt nặng nhất của các phường trung tâm tỉnh.",
+    "timelineMiniChart": false,
+    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": [] },
+    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "media": {
+      "type": "image",
+      "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/nt-38-1764156022-1764156118-6206-1764156139.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=RTue_v9KCSVdrPRdhTDgnA",
+      "caption": "Ảnh: Thanh Tùng"
+    }
+  },
+  {
+    "id": 11,
+    "title": "Đợt lũ 50 năm mới có",
+    "body": "Theo Cục Khí tượng Thuỷ văn (Bộ Nông nghiệp Môi trường), đợt lũ Nam Trung Bộ 15-21/11 lớn nhất 50 năm, đồng thời phá hoặc gần chạm ngưỡng lịch sử nhiều lưu vực.",
+    "timelineMiniChart": false,
+    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": [] },
+    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "media": {
+      "type": "iframe",
+      "src": "https://flo.uri.sh/visualisation/26462765/embed",
+      "title": "Flourish chart 26462765"
+    }
+  },
+  {
+    "id": 12,
+    "title": "Thiệt hại kinh tế",
+    "body": "Đây là thiệt hại của đợt mưa lũ",
+    "timelineMiniChart": false,
+    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": [] },
+    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "media": {
+      "type": "iframe",
+      "src": "https://flo.uri.sh/visualisation/26462354/embed",
+      "title": "Flourish chart 26462354"
+    }
+  },
+  {
+    "id": 13,
+    "title": "Ký ức lũ dữ",
+    "body": "\"Lúc đó, tôi vẫn nghĩ nhà mình cao. Bao năm qua nước rất ít vào nhà. Khi mình biết là lũ năm nay không như mọi năm thì nước đã quá đầu người\", anh Nguyễn Văn Hần (42 tuổi, thôn Phú Hữu, xã Hòa Thịnh) mất hai người thân đêm 19/11 do trận lũ lịch sử, nói.",
+    "timelineMiniChart": false,
+    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": [] },
+    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "media": {
+      "type": "image",
+      "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/lu-mie-n-trung-11-1764156024-8511-1764156139.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=y42FMGqPMk8WE5nXvYoMYg",
+      "caption": "Ảnh: Đăng Nguyên"
+    }
+  },
+  {
+    "id": 14,
+    "title": "Mất trắng lồng tôm",
+    "body": "\"Chưa khi nào như bây giờ, đi ra bè không thấy một con tôm nào còn sống\", ông Nguyễn Văn Hạnh, 45 tuổi, phường Sông Cầu (Đăk Lăk) bất lực khi không cứu được bè tôm, nguồn thu nhập chính của gia đình 5 người.",
+    "timelineMiniChart": false,
+    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": [] },
+    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "media": {
+      "type": "image",
+      "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/lu-mie-n-trung-18-1764156025-4289-1764156140.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=6IthmgnZU3j0OY1cgaF2YA",
+      "caption": "Ảnh: Thanh Tùng"
+    }
+  },
+  {
+    "id": 15,
+    "title": "Leo nóc nhà thoát nạn",
+    "body": "\"Ông bị tai biến, bà mắc bệnh nền nhưng sống chết phải cố leo lên nóc nhà thoát nạn, nhà cửa giờ không còn gì, mấy bao lúa giống cũng mất hết\", bà Phan Thị Hoà, 75 tuổi ở thôn Mỹ Điền, xã Hòa Thịnh cùng chồng 78 tuổi cho biết mưa ngập sâu hai vợ chồng phải leo nóc nhà chờ cứu hộ.",
+    "timelineMiniChart": false,
+    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": [] },
+    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "media": {
+      "type": "image",
+      "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/lu-mie-n-trung-16-1764156024-6982-1764156140.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=sxbzJjt61ZVRLcldehK0_A",
+      "caption": "Ảnh: Thanh Tùng"
+    }
+  },
+  {
+    "id": 16,
+    "title": "Thoát chết trong gang tấc",
+    "body": "\"Khi ngồi trên sàn nhà có mái tôn của hàng xóm, ba mẹ con tôi như sống lại\", chị Trần Thị Ngọc Kim En (35 tuổi, thôn Phú Hữu) ôm cảm ơn \"ân nhân\" Trần Tấn Điện (30 tuổi, trung uý công an xã Sơn Thành) - người cứu ba mẹ con chị vào sáng ngày 20/11.",
+    "timelineMiniChart": false,
+    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": [] },
+    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "media": {
+      "type": "image",
+      "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/dak-lak-photo-td5-0358-1764156-2599-7386-1764156139.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=muSkeISgLTCacTCVDkcAYA",
+      "caption": "Ảnh: Thanh Tùng"
+    }
   }
 ]
