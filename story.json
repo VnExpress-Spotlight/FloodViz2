@@ -227,5 +227,19 @@
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/dak-lak-photo-td5-0358-1764156-2599-7386-1764156139.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=muSkeISgLTCacTCVDkcAYA",
       "caption": "Ảnh: Thanh Tùng"
     }
+  },
+    {
+    "id": 17,
+    "title": "",
+    "body": "Sau lũ, cả nước hướng về cứu trợ các tỉnh miền Trung. Đến 25/11, Mặt trận Tổ quốc Việt Nam ghi nhận hơn một triệu lượt quyên góp với tổng số tiền hơn 2.000 tỷ đồng cho đồng bào vùng thiên tai.",
+    "timelineMiniChart": false,
+    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
+    "filters": { "rivers": [], "provinces": [] },
+    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "media": {
+      "type": "image",
+      "src": "https://i1-vnexpress.vnecdn.net/2025/11/23/cuu-tro-vne-1763877021-1763877375-1763877555-1763877635-1763878344-1763878416.jpg?w=0&h=0&q=100&dpr=1&fit=crop&s=_8V_ZzeV7mFmVmGpP0oHlA",
+      "caption": "Ảnh: Thanh Tùng"
+    }
   }
 ]
