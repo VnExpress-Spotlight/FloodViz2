@@ -10,11 +10,47 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Inter', sans-serif; background: #1a1a1a; color: #e5e5e5; overflow: hidden; }
+        :root {
+            --bg: #0b111a;
+            --panel: rgba(14, 18, 26, 0.88);
+            --panel-strong: rgba(10, 14, 22, 0.95);
+            --border: rgba(255,255,255,0.12);
+            --muted: #9ca3af;
+            --text: #e5e7eb;
+            --accent: #38bdf8;
+            --accent-strong: #0ea5e9;
+            --accent-warm: #fbbf24;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: radial-gradient(160% 140% at 10% 15%, #0e1829 0%, #0c1321 40%, #0a0f19 80%, #090d15 100%);
+            color: var(--text); 
+            overflow: hidden; 
+        }
+        .ol-zoom { display: none !important; }
         
         /* --- Map & Layout --- */
         #map { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1; background: #222; transition: opacity 0.6s ease, filter 0.6s ease; }
-        #map.map-faded { opacity: 0.12; filter: grayscale(0.8) blur(0.6px); }
+        #map.map-faded { opacity: 0.05; filter: grayscale(0.95) blur(1px) brightness(0.45); background: #000; }
+        #map.map-faded::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.6) 100%);
+            pointer-events: none;
+        }
+        #media-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 45;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s ease;
+        }
+        body.media-overlay-active #media-overlay {
+            opacity: 1;
+        }
 
         /* --- Custom Slider Styling --- */
         .range-container { position: relative; width: 100%; height: 20px; display: flex; align-items: center; }
@@ -50,7 +86,7 @@
         }
 
         /* --- UI Components --- */
-        .glass-panel { background: rgba(30, 30, 30, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-panel { background: var(--panel); backdrop-filter: blur(14px); border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.45); }
         
         /* --- Leaflet/OL Customization --- */
         .leaflet-bar a { background-color: #333; color: #fff; border-bottom: 1px solid #444; }
@@ -149,49 +185,92 @@
             align-items: center;
             gap: 1.5rem; /* 24px */
             width: 100%;
-            max-width: 960px;
+            max-width: 1180px;
             margin: 0 auto;
         }
         .step-content {
+            position: relative;
             pointer-events: auto; /* Enable interaction with text box */
-            background: rgba(20, 20, 20, 0.9);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: linear-gradient(155deg, rgba(12,16,26,0.7) 0%, rgba(12,16,26,0.6) 50%, rgba(12,16,26,0.55) 100%);
+            border: 1px solid rgba(255,255,255,0.08);
             padding: 22px; 
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border-left: 4px solid #3b82f6;
+            box-shadow: 0 18px 48px rgba(0,0,0,0.6);
+            border-left: 4px solid var(--accent-strong);
             width: 100%;
-            max-width: 700px;
-            text-align: center;
+            max-width: 900px;
+            text-align: left;
+            overflow: hidden;
+        }
+        .step-content::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 20%, rgba(56,189,248,0.08), transparent 35%), radial-gradient(circle at 80% 0%, rgba(251,191,36,0.06), transparent 30%);
+            pointer-events: none;
         }
         @media (min-width: 1024px) {
             .step-inner-wrapper {
                 align-items: center;
                 justify-content: center;
-                max-width: 1100px;
+                max-width: 1280px;
                 margin-left: auto;
                 margin-right: auto;
             }
             .step-content {
-                width: 44vw;
-                max-width: 640px;
-                text-align: center;
+                width: min(70vw, 1000px);
+                max-width: 1000px;
+                text-align: left;
             }
         }
         @media (max-width: 640px) { .step-inner-wrapper { gap: 0.75rem; align-items: stretch; } .step-content { width: 100%; } }
         
+        .step-content h3 {
+            margin-top: 4px;
+            margin-bottom: 14px;
+            background: linear-gradient(125deg, var(--accent-strong), #60a5fa 40%, var(--accent-warm) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
         .step-content p {
             /* UPDATED: Increased font size for readability */
             font-size: 1.1rem;
         }
 
         /* Media slides */
-        .step-content.media-step { border-left-color: #f59e0b; }
-        .story-media { width: 100%; max-width: 900px; overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,0.12); background: rgba(12,12,12,0.9); box-shadow: 0 18px 48px rgba(0,0,0,0.55); }
+        .step-content.media-step { border-left-color: var(--accent-warm); }
+        .story-media { width: 100%; max-width: 1000px; overflow: hidden; border-radius: 14px; border: 1px solid var(--border); background: linear-gradient(145deg, rgba(14,17,26,0.95) 0%, rgba(12,14,22,0.92) 60%, rgba(10,12,18,0.9) 100%); box-shadow: 0 20px 52px rgba(0,0,0,0.6); position: relative; }
         .story-media img, .story-media iframe { display: block; width: 100%; }
-        .story-media img { object-fit: contain; max-height: 70vh; }
+        .story-media img { object-fit: contain; max-height: 70vh; filter: brightness(0.82); background: #000; }
         .story-media iframe { height: clamp(280px, 65vh, 760px); border: none; }
-        .story-media .caption { padding: 12px 16px; color: #d1d5db; font-size: 0.95rem; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02); }
+        .story-media .caption { padding: 12px 16px; color: var(--muted); font-size: 0.95rem; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); letter-spacing: 0.01em; }
+        .story-media.media-photo .media-time-badge,
+        .story-media.media-embed .media-time-badge { display: none; }
+        .media-time-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 6px 10px 6px 8px;
+            border-radius: 9999px;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 10px 24px rgba(0,0,0,0.35);
+        }
+        .media-time-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 9999px;
+            background: var(--accent-warm);
+            box-shadow: 0 0 0 6px rgba(251,191,36,0.15);
+        }
 
         /* Timeline bar visible again */
         .timeline-wrapper { display: flex; height: auto; min-height: 0; align-items: flex-end; }
@@ -215,6 +294,7 @@
 <body>
 
     <div id="map"></div>
+    <div id="media-overlay"></div>
 
     <div id="story-container">
         <div id="story-top-spacer" style="height: 30vh;"></div>
@@ -322,7 +402,7 @@
 
         // Filter Range Definition
         const FILTER_RANGE = {
-            start: new Date("2025-11-14T01:00:00"),
+            start: new Date("2025-11-15T00:00:00"),
             end: new Date("2025-11-20T20:00:00")
         };
         const COLORS = { blue: '#0ea5e9', green: '#22c55e', yellow: '#fbbf24', red: '#ef4444', purple: '#a855f7' };
@@ -378,7 +458,7 @@
         let layerVisibility = { rain: false, river: true, stations: true, lakes: true }; // Modified default for story
         let layerOpacity = { rain: 0.75, hydro: 0.9 };
         let filters = { provinces: new Set(), rivers: new Set() };
-        let rainThresholds = { p50: 0, p90: 0, p99: 0 };
+        let rainThresholds = { p50: 0, p90: 0, p99: 0, min: 0, max: 0 };
         
         // Runtime Variables
         let pendingUpdate = null;
@@ -394,6 +474,7 @@
         const stepScrollAnchors = {};
         const labelOverlays = [];
         let activeLabelConfigs = [];
+        let activeStepElement = null;
         const registerPopupCursor = (entry) => {
             popupCursorRegistry.push(entry);
             return () => { popupCursorRegistry = popupCursorRegistry.filter(e => e !== entry); };
@@ -423,6 +504,9 @@
             const mapEl = document.getElementById('map');
             document.body.classList.toggle('media-step-active', !!isFaded);
             if (mapEl) mapEl.classList.toggle('map-faded', !!isFaded);
+        }
+        function setMediaOverlayState(isActive) {
+            document.body.classList.toggle('media-overlay-active', !!isActive);
         }
 
         // =============================================================================
@@ -548,9 +632,59 @@
                 offset: [0, -10],
                 stopEvent: false
             });
+            const coords = feature.getGeometry().getCoordinates();
             map.addOverlay(overlay);
-            overlay.setPosition(feature.getGeometry().getCoordinates());
-            labelOverlays.push({ overlay, element: el });
+            overlay.setPosition(coords);
+            labelOverlays.push({ overlay, element: el, coordinate: coords });
+        }
+        function resolveLabelCollisions() {
+            if (!map || !labelOverlays.length) return;
+            const candidateOffsets = [-10, -40, 20, -70, 50, -100, 80, -130, 110];
+            const padding = 6;
+            const placements = [];
+            const overlaps = (a, b) => {
+                return !(a.right + padding < b.left ||
+                         a.left - padding > b.right ||
+                         a.bottom + padding < b.top ||
+                         a.top - padding > b.bottom);
+            };
+            labelOverlays.forEach(entry => {
+                const coord = entry.coordinate || entry.overlay.getPosition();
+                if (!coord) return;
+                const pixel = map.getPixelFromCoordinate(coord);
+                if (!pixel) return;
+                const rect = entry.element.getBoundingClientRect();
+                const width = rect.width || 0;
+                const height = rect.height || 0;
+                if (!width || !height) return;
+                const halfWidth = width / 2;
+                let chosenOffset = candidateOffsets[0];
+                let finalPlacement = null;
+                for (const offsetY of candidateOffsets) {
+                    const bottom = pixel[1] + offsetY;
+                    const top = bottom - height;
+                    const left = pixel[0] - halfWidth;
+                    const right = left + width;
+                    const placement = { top, bottom, left, right };
+                    const hasOverlap = placements.some(p => overlaps(placement, p));
+                    if (!hasOverlap) {
+                        chosenOffset = offsetY;
+                        finalPlacement = placement;
+                        break;
+                    }
+                }
+                if (!finalPlacement) {
+                    const bottom = pixel[1] + chosenOffset;
+                    finalPlacement = {
+                        top: bottom - height,
+                        bottom,
+                        left: pixel[0] - halfWidth,
+                        right: pixel[0] - halfWidth + width
+                    };
+                }
+                placements.push(finalPlacement);
+                entry.overlay.setOffset([0, chosenOffset]);
+            });
         }
         function renderDynamicLabelsFromState() {
             clearLabelOverlays();
@@ -565,8 +699,8 @@
                 if (featureType === 'lake') {
                     const status = getLakeStatus(record);
                     color = status.color || color;
-                    const ratio = Number.isFinite(record?.ratio) ? record.ratio.toFixed(1) + '%' : 'N/A';
-                    subtitle = `Đầy ${ratio}`;
+                    if (Number.isFinite(record?.ratio)) subtitle = `Đầy ${record.ratio.toFixed(1)}%`;
+                    else subtitle = 'Không có dữ liệu';
                 } else {
                     const status = getRiverStatus(record);
                     color = status.color || color;
@@ -574,6 +708,7 @@
                 }
                 addLabelOverlay({ feature, title: cfg.name, subtitle, color });
             });
+            resolveLabelCollisions();
         }
 
         function showHoverTooltip(html, coordinate) {
@@ -662,6 +797,7 @@
             if (type === 'lake') {
                 if (Number.isFinite(record?.ratio)) valueLine = `Đầy: ${record.ratio.toFixed(1)}%`;
                 else if (Number.isFinite(record?.capacity)) valueLine = `Dung tích: ${record.capacity}`;
+                else valueLine = 'Không có dữ liệu';
             } else if (Number.isFinite(record?.value)) {
                 valueLine = `Mực nước: ${record.value.toFixed(2)} m`;
             }
@@ -670,6 +806,11 @@
             const basinLine = basin ? `<div class="value">Sông ${basin}</div>` : '';
             return `<div class="label">${stationName}</div>${basinLine}<div class="value">${valueLine}</div>${statusLine}`;
         }
+        const formatRainLegendValue = (val) => {
+            if (!Number.isFinite(val)) return '—';
+            if (val >= 100) return `${Math.round(val)} mm`;
+            return `${val.toFixed(1)} mm`;
+        };
 
         // =============================================================================
         // 4. UTILITY FUNCTIONS
@@ -743,6 +884,43 @@
                 return `${d.getHours()}h ${d.getDate()}/${d.getMonth() + 1}`;
             } catch(e) { return dateStr; }
         }
+        function formatHourLabel(dateStr) {
+            try {
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return '—';
+                const h = d.getHours();
+                return `${h}h, ${d.getDate()}/${d.getMonth() + 1}`;
+            } catch(e) { return '—'; }
+        }
+        function diffHours(start, end) {
+            const s = new Date(start);
+            const e = new Date(end);
+            if (isNaN(s.getTime()) || isNaN(e.getTime())) return null;
+            return Math.round((e.getTime() - s.getTime()) / (1000 * 60 * 60));
+        }
+        function parseMediaTimeToIndex(label) {
+            if (!label || !Array.isArray(state.dates) || !state.dates.length) return null;
+            const m = String(label).match(/(\d{1,2})h,?\s*(\d{1,2})\/(\d{1,2})/);
+            if (!m) return null;
+            const [, hStr, dStr, mStr] = m;
+            const targetH = parseInt(hStr, 10);
+            const targetD = parseInt(dStr, 10);
+            const targetM = parseInt(mStr, 10);
+            if (isNaN(targetH) || isNaN(targetD) || isNaN(targetM)) return null;
+            const baseYear = new Date(state.dates[0]).getFullYear() || new Date().getFullYear();
+            for (let i = 0; i < state.dates.length; i++) {
+                const d = new Date(state.dates[i]);
+                if (isNaN(d.getTime())) continue;
+                if (d.getHours() === targetH && d.getDate() === targetD && (d.getMonth() + 1) === targetM) return i;
+            }
+            // Fallback: match by day/month ignoring hour (choose first)
+            for (let i = 0; i < state.dates.length; i++) {
+                const d = new Date(state.dates[i]);
+                if (isNaN(d.getTime())) continue;
+                if (d.getDate() === targetD && (d.getMonth() + 1) === targetM) return i;
+            }
+            return null;
+        }
         function normalizeToHourKey(value) {
             if (!value) return null;
             const match = String(value).trim().match(/^(\d{4}-\d{2}-\d{2})[T ](\d{1,2}):/);
@@ -751,7 +929,8 @@
             return `${datePart} ${hourPart.padStart(2, '0')}:00`;
         }
         function getLakeStatus(record) {
-            const ratio = Number.isFinite(record?.ratio) ? record.ratio : 0;
+            const ratio = Number.isFinite(record?.ratio) ? record.ratio : null;
+            if (ratio === null) return { label: "Không có dữ liệu", color: '#9ca3af' };
             if (ratio > 105) return { label: "Tỷ lệ dung tích >105%", color: COLORS.purple };
             if (ratio > 100) return { label: "Tỷ lệ dung tích >100%", color: COLORS.red };
             if (ratio >= 95) return { label: "Tỷ lệ dung tích ≥95%", color: COLORS.yellow };
@@ -796,8 +975,8 @@
                 DOM.legendGradient.style.background = 'linear-gradient(90deg, #0ea5e9, #22c55e, #f59e0b, #ef4444)';
             }
             if (DOM.legendModeLabel) DOM.legendModeLabel.textContent = state.mode === 'daily' ? 'Theo giờ' : 'Tích lũy';
-            if (DOM.legendMinVal) DOM.legendMinVal.textContent = 'Thấp';
-            if (DOM.legendMaxVal) DOM.legendMaxVal.textContent = 'Cao';
+            if (DOM.legendMinVal) DOM.legendMinVal.textContent = formatRainLegendValue(rainThresholds.min);
+            if (DOM.legendMaxVal) DOM.legendMaxVal.textContent = formatRainLegendValue(rainThresholds.max);
             if (DOM.legendLakes) {
                 const ranges = [
                     { label: ">105%", color: COLORS.purple },
@@ -1209,13 +1388,27 @@
             }
             const displayDateEl = document.getElementById('display-date');
             const dateStartDisplay = document.getElementById('start-date-display');
-            const endDateStr = formatDisplayDate(state.dates[state.endIndex]);
-            const startDateStr = formatDisplayDate(state.dates[state.startIndex]);
-            const isAccumulated = state.mode === 'accumulated';
-            const labelText = isAccumulated
-                ? `${startDateStr} - ${endDateStr}`
-                : `${endDateStr}`;
-            displayDateEl.innerText = '';
+            const endDateStr = formatHourLabel(state.dates[state.endIndex]);
+            const startDateStr = formatHourLabel(state.dates[state.startIndex]);
+            const spanHours = diffHours(state.dates[state.startIndex], state.dates[state.endIndex]);
+            if (displayDateEl) displayDateEl.innerText = endDateStr;
+            if (dateStartDisplay) {
+                let offsetText = startDateStr;
+                if (Number.isFinite(spanHours) && spanHours > 0) {
+                    if (spanHours > 48) {
+                        const daysDecimal = Math.round((spanHours / 24) * 10) / 10;
+                        offsetText = `(+${daysDecimal.toFixed(1)} ngày từ ${startDateStr})`;
+                    } else {
+                        offsetText = `(+${spanHours} giờ từ ${startDateStr})`;
+                    }
+                    dateStartDisplay.innerText = offsetText;
+                    dateStartDisplay.classList.remove('hidden');
+                } else {
+                    dateStartDisplay.innerText = '';
+                    dateStartDisplay.classList.add('hidden');
+                }
+            }
+            updateMediaTimeBadges(endDateStr);
             
             recomputeRainThresholds();
             if (geoLayer?.getSource()) geoLayer.getSource().changed();
@@ -1226,6 +1419,19 @@
             updateChartCursor();
             renderLegend();
             renderDynamicLabelsFromState();
+        }
+
+        function updateMediaTimeBadges(label) {
+            const targets = document.querySelectorAll('.step.active .media-time-badge');
+            targets.forEach(el => {
+                if (el.dataset.prefilled === 'true') {
+                    el.classList.remove('hidden');
+                    return;
+                }
+                if (!label) { el.classList.add('hidden'); return; }
+                el.textContent = label;
+                el.classList.remove('hidden');
+            });
         }
 
         function recomputeRainThresholds() {
@@ -1241,10 +1447,12 @@
                 }
                 if (val > 0) vals.push(val);
             });
-            if (!vals.length) { rainThresholds = { p50: 0, p90: 0, p99: 0 }; return; }
+            if (!vals.length) { rainThresholds = { p50: 0, p90: 0, p99: 0, min: 0, max: 0 }; return; }
             vals.sort((a,b) => a-b);
             const pct = p => vals[Math.floor(p * (vals.length - 1))];
-            rainThresholds = { p50: pct(0.5), p90: pct(0.9), p99: pct(0.99) };
+            const min = vals[0];
+            const max = vals[vals.length - 1];
+            rainThresholds = { p50: pct(0.5), p90: pct(0.9), p99: pct(0.99), min, max };
         }
 
         function getColor(value) {
@@ -1326,8 +1534,8 @@
             if (ratioEl) {
                 const latestRatio = Number.isFinite(latestRecord?.ratio) ? latestRecord.ratio : null;
                 const status = getLakeStatus(latestRecord);
-                const ratioText = Number.isFinite(latestRatio) ? `${latestRatio.toFixed(1)}%` : '—';
-                ratioEl.textContent = `Đầy ${ratioText}`;
+                if (Number.isFinite(latestRatio)) ratioEl.textContent = `Đầy ${latestRatio.toFixed(1)}%`;
+                else ratioEl.textContent = 'Không có dữ liệu';
                 ratioEl.style.color = status.color;
                 ratioEl.style.backgroundColor = applyOpacity(status.color, 0.12);
                 ratioEl.style.border = `1px solid ${applyOpacity(status.color, 0.35)}`;
@@ -1510,7 +1718,9 @@
             const warnRecord = state.waterLevelMap[state.endIndex]?.[sid];
             const warnStatus = meta.type === 'lake' ? null : getRiverStatus(warnRecord);
             const lakeStatus = meta.type === 'lake' ? getLakeStatus(warnRecord) : null;
-            const warnText = meta.type === 'lake' ? `Đầy ${Number.isFinite(warnRecord?.ratio) ? warnRecord.ratio.toFixed(1) + '%' : '—'}` : (warnStatus?.label || getWarningLabel(warnRecord?.warningValue));
+            const warnText = meta.type === 'lake'
+                ? (Number.isFinite(warnRecord?.ratio) ? `Đầy ${warnRecord.ratio.toFixed(1)}%` : 'Không có dữ liệu')
+                : (warnStatus?.label || getWarningLabel(warnRecord?.warningValue));
             const warnColor = meta.type === 'lake' ? (lakeStatus?.color || COLORS.blue) : (warnStatus?.color || COLORS.blue);
             
             container.innerHTML = `
@@ -1698,18 +1908,26 @@
                 const content = document.createElement('div');
                 content.className = 'step-content';
                 if (step.media) content.classList.add('media-step');
-                const title = document.createElement('h3');
-                title.className = 'text-2xl font-bold text-blue-500 mb-4';
-                title.innerText = step.title || '';
+                const titleText = (step.title || '').trim();
+                if (titleText) {
+                    const title = document.createElement('h3');
+                    title.className = 'text-2xl font-bold text-blue-500 mb-4';
+                    title.innerText = titleText;
+                    content.appendChild(title);
+                }
                 const body = document.createElement('p');
                 body.className = 'leading-relaxed text-gray-200';
                 body.innerText = step.body || '';
-                content.appendChild(title);
                 content.appendChild(body);
                 if (step.media && step.media.src) {
                     const mediaWrapper = document.createElement('div');
                     mediaWrapper.className = 'story-media mt-4';
                     const mediaType = step.media.type || 'image';
+                    if (mediaType === 'image' || mediaType === 'photo') {
+                        mediaWrapper.classList.add('media-photo');
+                    } else if (mediaType === 'iframe' || mediaType === 'embed') {
+                        mediaWrapper.classList.add('media-embed');
+                    }
                     if (mediaType === 'iframe' || mediaType === 'embed') {
                         const frame = document.createElement('iframe');
                         frame.src = step.media.src;
@@ -1731,6 +1949,14 @@
                         caption.innerText = step.media.caption;
                         mediaWrapper.appendChild(caption);
                     }
+                    const badge = document.createElement('div');
+                    badge.className = 'media-time-badge hidden';
+                    if (step.media.time) {
+                        badge.textContent = step.media.time;
+                        badge.dataset.prefilled = 'true';
+                        badge.classList.remove('hidden');
+                    }
+                    mediaWrapper.appendChild(badge);
                     content.appendChild(mediaWrapper);
                 }
                 wrapper.appendChild(content);
@@ -1775,22 +2001,30 @@
                 threshold: 0
             };
             const observer = new IntersectionObserver((entries) => {
-                let anyStepActive = false;
+                let bestEntry = null;
                 entries.forEach(entry => {
                     if (!entry.isIntersecting) {
                         entry.target.classList.remove('active');
+                        if (activeStepElement === entry.target) activeStepElement = null;
                         return;
                     }
-                    anyStepActive = true;
+                    if (!bestEntry || entry.intersectionRatio > bestEntry.intersectionRatio) {
+                        bestEntry = entry;
+                    }
+                });
+                if (!bestEntry) return;
+                const targetStep = bestEntry.target;
+                if (activeStepElement !== targetStep) {
                     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-                    entry.target.classList.add('active');
-                    const stepId = Number(entry.target.dataset.step);
+                    targetStep.classList.add('active');
+                    activeStepElement = targetStep;
+                    const stepId = Number(targetStep.dataset.step);
                     currentStoryStep = stepId;
                     if (scroller) stepScrollAnchors[stepId] = scroller.scrollTop;
                     const cfg = storySteps.find(s => Number(s.id) === stepId);
                     if (cfg) applyStoryStep(cfg);
-                });
-                if (anyStepActive) updateTimelineFromScroll();
+                }
+                updateTimelineFromScroll();
             }, observerOptions);
 
             document.querySelectorAll('.step').forEach(step => observer.observe(step));
@@ -2000,9 +2234,15 @@
             activeLabelConfigs = stepConfig.labels || [];
             const mediaCfg = stepConfig.media || null;
             const isMediaStep = !!mediaCfg;
-            const fadeMap = isMediaStep && mediaCfg.fadeMap !== false;
+            const fadeMap = !!(isMediaStep && mediaCfg.fadeMap === true);
             const holdMapView = isMediaStep && mediaCfg.keepView !== false;
+            const hideLegendForMedia = !!(isMediaStep && mediaCfg.hideLegend === true);
+            const showMediaOverlay = !!(isMediaStep && mediaCfg.overlay !== false);
             setMapFadeState(fadeMap);
+            setMediaOverlayState(showMediaOverlay);
+            if (DOM.legendToggleBtn) DOM.legendToggleBtn.classList.toggle('hidden', hideLegendForMedia);
+            if (hideLegendForMedia && DOM.legendPanel) DOM.legendPanel.classList.add('hidden');
+            if (!hideLegendForMedia && DOM.legendToggleBtn) DOM.legendToggleBtn.classList.remove('hidden');
 
             const rainMode = stepConfig.rainMode || stepConfig.mode;
             if (rainMode === 'hourly') state.mode = 'daily';
@@ -2038,6 +2278,17 @@
             if (stepConfig.timeline) {
                 const tl = stepConfig.timeline;
                 setTimeline(tl.start, tl.end, { animate: tl.animate, snapToStart: tl.snapToStart, step: stepConfig.id });
+            }
+            if (mediaCfg?.time) {
+                const idx = parseMediaTimeToIndex(mediaCfg.time);
+                if (idx !== null) {
+                    state.endIndex = idx;
+                    DOM.sliderEnd.value = idx;
+                    if (state.startIndex > idx) {
+                        state.startIndex = idx;
+                        DOM.sliderStart.value = idx;
+                    }
+                }
             }
 
             const shouldFitBounds = Array.isArray(stepConfig.bounds) && stepConfig.bounds.length && !holdMapView;
