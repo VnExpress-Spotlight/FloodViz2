@@ -2,118 +2,343 @@
   {
     "id": 1,
     "title": "Mùa mưa lịch sử",
-    "body": "Từ 15 đến 21/11, Nam Trung Bộ hứng chịu đợt mưa kéo dài. Tổng lượng phổ biến 500–1.200 mm. Tâm mưa dịch dần từ Huế - Đà Nẵng xuống phía đông Đắk Lắk, gây ngập kỷ lục dọc các tỉnh Nam Trung Bộ - từ Huế đến Khánh Hoà.",
-    "timeline": { "start": "2025-11-15T00:00:00", "end": "2025-11-21T23:00:00", "animate": false, "snapToStart": true },
+    "body": "Từ 14 đến 21/11, Nam Trung Bộ hứng chịu đợt mưa kéo dài. Tổng lượng phổ biến 500–1.200 mm. Tâm mưa dịch dần từ Huế - Đà Nẵng xuống phía đông Đắk Lắk, gây ngập kỷ lục dọc các tỉnh Nam Trung Bộ - từ Huế đến Khánh Hoà.",
+    "timeline": {
+      "start": "2025-11-14T00:00:00",
+      "end": "2025-11-21T23:00:00",
+      "animate": false,
+      "snapToStart": true
+    },
     "timelineMiniChart": false,
     "rainMode": "accumulated",
-    "layers": { "rain": true, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": [] },
-    "bounds": [{ "extent": [107, 10.5, 109.7, 16.6] }],
+    "layers": {
+      "rain": true,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": []
+    },
+    "bounds": [
+      {
+        "extent": [
+          107,
+          10.5,
+          109.7,
+          16.6
+        ]
+      }
+    ],
     "labels": [],
-    "opacity": { "rain": 0.7, "hydro": 0.9 }
+    "opacity": {
+      "rain": 0.7,
+      "hydro": 0.9
+    }
   },
   {
     "id": 2,
     "title": "",
     "body": "Ba ngày đầu, mưa lớn tập trung ở Huế, Đà Nẵng, và một phần Quảng Ngãi, Gia Lai. Lượng mưa phổ biến 250-500 mm, có nơi trên 700 mm. ",
-    "timeline": { "start": "2025-11-15T00:00:00", "end": "2025-11-18T00:00:00", "animate": false, "snapToStart": true },
+    "timeline": {
+      "start": "2025-11-15T00:00:00",
+      "end": "2025-11-18T00:00:00",
+      "animate": false,
+      "snapToStart": true
+    },
     "timelineMiniChart": false,
     "rainMode": "accumulated",
-    "layers": { "rain": true, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": ["TP Huế", "TP Đà Nẵng"] },
-    "bounds": [{ "extent": [107.3, 14.1, 108.45, 17.4] }],
+    "layers": {
+      "rain": true,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": [
+        "TP Huế",
+        "TP Đà Nẵng"
+      ]
+    },
+    "bounds": [
+      {
+        "extent": [
+          107.3,
+          14.1,
+          108.45,
+          17.4
+        ]
+      }
+    ],
     "labels": [],
-    "opacity": { "rain": 0.7, "hydro": 0.9 }
+    "opacity": {
+      "rain": 0.7,
+      "hydro": 0.9
+    }
   },
   {
     "id": 3,
     "title": "",
     "body": "Mưa lớn khiến nước sông ở trạm Phú Ốc và Ái Nghĩa vượt báo động 3, Huế và Đà Nẵng tái ngập từ 17/11. Đây là lần thứ tư trong chưa đầy một tháng, Huế ngập do mưa lũ.",
-    "timeline": { "start": "2025-11-16T12:00:00", "end": "2025-11-17T22:00:00", "animate": false, "snapToStart": true },
+    "timeline": {
+      "start": "2025-11-16T12:00:00",
+      "end": "2025-11-17T22:00:00",
+      "animate": false,
+      "snapToStart": true
+    },
     "timelineMiniChart": false,
     "rainMode": "hourly",
-    "layers": { "rain": false, "river": true, "stations": true, "lakes": false },
-    "filters": { "rivers": ["Hương", "Hương - Bồ", "Vu Gia", "Vu Gia - Thu Bồn"], "provinces": [] },
-    "bounds": [{ "extent": [107, 15, 108.4, 17] }],
-    "labels": [
-      { "name": "Phú Ốc", "type": "station", "color": "#0ea5e9" },
-      { "name": "Ái Nghĩa", "type": "station", "color": "#22c55e" }
+    "layers": {
+      "rain": false,
+      "river": true,
+      "stations": true,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [
+        "Hương",
+        "Hương - Bồ",
+        "Vu Gia",
+        "Vu Gia - Thu Bồn"
+      ],
+      "provinces": []
+    },
+    "bounds": [
+      {
+        "extent": [
+          107,
+          15,
+          108.4,
+          17
+        ]
+      }
     ],
-    "opacity": { "rain": 0.75, "hydro": 0.9 }
+    "labels": [
+      {
+        "name": "Phú Ốc",
+        "type": "station",
+        "color": "#0ea5e9"
+      },
+      {
+        "name": "Ái Nghĩa",
+        "type": "station",
+        "color": "#22c55e"
+      }
+    ],
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    }
   },
   {
     "id": 4,
     "title": "",
     "body": "Mưa lớn khiến nước trên các sông tăng nhanh, hạ du Huế ngập 0,3-0,5 m. Miền núi Đà Nẵng xuất hiện nhiều vụ sạt trượt đất. Trong đó, vụ sạt lở tại xã Hùng Sơn khiến 3 người mất tích. Đến 18h ngày 17/11, mưa lũ ở Trung Bộ khiến 12 người chết và mất tích, 19 người bị thương.",
     "timelineMiniChart": false,
-    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": [] },
-    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "layers": {
+      "rain": false,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": []
+    },
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    },
     "media": {
       "type": "image",
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/lu-mie-n-trung-20-1764156025-2161-1764156140.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=7i2MfTOU_Gv6tcsO58mgZA",
-      "caption": "Tuyến đường Bạch Đằng ở phường Phú Xuân ngập 0,5 m. Ảnh: Võ Thạnh"
+      "caption": "Tuyến đường Bạch Đằng ở phường Phú Xuân ngập 0,5 m. Ảnh: Võ Thạnh",
+      "time": "18h, 17/11"
     }
   },
   {
     "id": 5,
     "title": "Lũ lịch sử ở Đăk Lăk",
     "body": "Từ 18/11, tâm mưa dịch chuyển về Đăk Lăk và Khánh Hoà. Đến 11h00 ngày 19/11, một số trạm ở Đăk Lăk ghi nhận lượng mưa kỷ lục từ 580-660 mm.",
-    "timeline": { "start": "2025-11-18T00:00:00", "end": "2025-11-19T12:00:00", "animate": false, "snapToStart": true },
+    "timeline": {
+      "start": "2025-11-18T00:00:00",
+      "end": "2025-11-19T12:00:00",
+      "animate": false,
+      "snapToStart": true
+    },
     "timelineMiniChart": false,
     "rainMode": "accumulated",
-    "layers": { "rain": true, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": ["Ba"], "provinces": [] },
-    "bounds": [{ "extent": [106.6, 10.6, 110.6, 16.5] }],
+    "layers": {
+      "rain": true,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [
+        "Ba"
+      ],
+      "provinces": []
+    },
+    "bounds": [
+      {
+        "extent": [
+          106.6,
+          10.6,
+          110.6,
+          16.5
+        ]
+      }
+    ],
     "labels": [],
-    "opacity": { "rain": 0.75, "hydro": 0.9 }
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    }
   },
   {
     "id": 6,
     "title": "",
     "body": "Mưa lớn liên tục từ 19 đến sáng 20/11 khiến mực nước tại trạm Củng Sơn và Phú Lâm (Sông Ba - Đăk Lăk) vượt lũ lịch sử năm 1993.",
-    "timeline": { "start": "2025-11-19T13:00:00", "end": "2025-11-20T06:00:00", "animate": false, "snapToStart": true },
+    "timeline": {
+      "start": "2025-11-19T13:00:00",
+      "end": "2025-11-20T06:00:00",
+      "animate": false,
+      "snapToStart": true
+    },
     "timelineMiniChart": false,
     "rainMode": "hourly",
-    "layers": { "rain": false, "river": true, "stations": true, "lakes": false },
-    "filters": { "rivers": ["Ba"], "provinces": [] },
-    "bounds": [{ "extent": [108.88, 12.8, 109.5, 13.5] }],
-    "labels": [
-      { "name": "Phú Lâm", "type": "station", "color": "#0ea5e9" },
-      { "name": "Củng Sơn", "type": "station", "color": "#22c55e" }
+    "layers": {
+      "rain": false,
+      "river": true,
+      "stations": true,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [
+        "Ba"
+      ],
+      "provinces": []
+    },
+    "bounds": [
+      {
+        "extent": [
+          108.88,
+          12.8,
+          109.5,
+          13.5
+        ]
+      }
     ],
-    "opacity": { "rain": 0.75, "hydro": 0.9 }
+    "labels": [
+      {
+        "name": "Phú Lâm",
+        "type": "station",
+        "color": "#0ea5e9"
+      },
+      {
+        "name": "Củng Sơn",
+        "type": "station",
+        "color": "#22c55e"
+      }
+    ],
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    }
   },
   {
     "id": 7,
     "title": "",
     "body": "Lũ trên sông Ba vượt xa khả năng điều tiết của 5 hồ chứa có chức năng giảm lũ cho hạ du. Hồ thuỷ điện Sông Ba Hạ, lá chắn cuối cùng, chỉ giữ lại được 26% tổng lượng lũ trong đợt cao điểm, phải xả vượt mức lịch sử 16.100 m3/s. Phần còn lại dồn xuống hạ du.",
-    "timeline": { "start": "2025-11-19T13:00:00", "end": "2025-11-20T19:00:00", "animate": false, "snapToStart": true },
+    "timeline": {
+      "start": "2025-11-19T13:00:00",
+      "end": "2025-11-20T19:00:00",
+      "animate": false,
+      "snapToStart": true
+    },
     "timelineMiniChart": false,
     "rainMode": "hourly",
-    "layers": { "rain": false, "river": true, "stations": false, "lakes": true },
-    "filters": { "rivers": ["Ba"], "provinces": [] },
-    "bounds": [{ "extent": [108, 12.7, 109.8, 14.2] }],
-    "labels": [
-      { "name": "Sông Ba Hạ", "type": "lake", "color": "#22c55e" },
-      { "name": "Kanak", "type": "lake", "color": "#22c55e" },
-      { "name": "Ayun Hạ", "type": "lake", "color": "#22c55e" },
-      { "name": "Sông Hinh", "type": "lake", "color": "#22c55e" }
+    "layers": {
+      "rain": false,
+      "river": true,
+      "stations": false,
+      "lakes": true
+    },
+    "filters": {
+      "rivers": [
+        "Ba"
+      ],
+      "provinces": []
+    },
+    "bounds": [
+      {
+        "extent": [
+          108,
+          12.5,
+          109.8,
+          14.8
+        ]
+      }
     ],
-    "opacity": { "rain": 0.75, "hydro": 0.9 }
+    "labels": [
+      {
+        "name": "Sông Ba Hạ",
+        "type": "lake",
+        "color": "#22c55e"
+      },
+      {
+        "name": "Kanak",
+        "type": "lake",
+        "color": "#22c55e"
+      },
+      {
+        "name": "Ayun Hạ",
+        "type": "lake",
+        "color": "#22c55e"
+      },
+      {
+        "name": "Krông H'Năng",
+        "type": "lake",
+        "color": "#22c55e"
+      },
+      {
+        "name": "Sông Hinh",
+        "type": "lake",
+        "color": "#22c55e"
+      }
+    ],
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    }
   },
   {
     "id": 8,
     "title": "",
     "body": "Lũ từ thượng nguồn đổ về kết hợp lượng mưa nội tại lớn khiến 34 xã phường khu vực Phú Yên cũ ngập nặng. Trong đó, xã Hòa Thịnh và phường Đông Hoà là rốn lũ do địa hình vùng trũng và nằm ở hạ du các sông trước khi đổ ra biển.",
     "timelineMiniChart": false,
-    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": [] },
-    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "layers": {
+      "rain": false,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": []
+    },
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    },
     "media": {
       "type": "image",
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/22/20251122-nga-p-3908-1763828211.png?w=0&h=0&q=100&dpr=2&fit=crop&s=3rGu0wII0g6ox8xPeTRvqw",
-      "caption": "Dữ liệu: VegaCosmos & VSGA. Đồ họa: Quang Tuệ"
+      "caption": "Dữ liệu: VegaCosmos & VSGA. Đồ họa: Quang Tuệ",
+      "time": "08h, 20/11"
     }
   },
   {
@@ -121,13 +346,25 @@
     "title": "Thiệt hại ",
     "body": "Đến 26/11, mưa lũ ở Nam Trung Bộ khiến 108 người chết và mất tích. Trong đó, Đăk Lăk thiệt hại nặng nề nhất với 63 người thiệt mạng. Riêng “rốn lũ” Hòa Thịnh ghi nhận 25 người chết, chiếm gần 40% số nạn nhân toàn tỉnh Đăk Lăk.",
     "timelineMiniChart": false,
-    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": [] },
-    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "layers": {
+      "rain": false,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": []
+    },
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    },
     "media": {
       "type": "image",
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/dak-lak-6-1764156022-176415611-4970-5213-1764156139.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=J9rwTFF0cA9n5r2UdYmKaw",
-      "caption": "Ngôi nhà ở rốn lũ Hoà Thịnh tan hoang sau lũ. Ảnh: Thanh Tùng"
+      "caption": "Ngôi nhà ở rốn lũ Hoà Thịnh tan hoang sau lũ. Ảnh: Thanh Tùng",
+      "time": "16h, 22/11"
     }
   },
   {
@@ -135,13 +372,25 @@
     "title": "",
     "body": "Mưa lũ gây ngập lụt, thiệt hại nhiều cơ sở hạ tầng như giao thông, trường học... tại các tỉnh Đăk Lăk, Gia Lai, Khánh Hòa. Đến 26/12, nhiều vị trí trên Quốc lộ 20 và 27C qua Khánh Hoà, Lâm Đồng còn ách tắc.",
     "timelineMiniChart": false,
-    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": [] },
-    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "layers": {
+      "rain": false,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": []
+    },
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    },
     "media": {
       "type": "image",
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/nt-38-1764156022-1764156118-6206-1764156139.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=RTue_v9KCSVdrPRdhTDgnA",
-      "caption": "Nút giao thông tại phường Tây Nha Trang (Khánh Hoà) chịu ảnh hưởng ngập lụt nặng nề.Ảnh: Thanh Tùng"
+      "caption": "Nút giao thông tại phường Tây Nha Trang (Khánh Hoà) chịu ảnh hưởng ngập lụt nặng nề. Ảnh: Thanh Tùng",
+      "time": "10h, 23/11"
     }
   },
   {
@@ -149,13 +398,25 @@
     "title": "",
     "body": "Theo Cục Khí tượng Thuỷ văn (Bộ Nông nghiệp Môi trường), đợt lũ Nam Trung Bộ lớn nhất 50 năm, khiến nhiều lưu vực gần chạm hoặc vượt mức lịch sử.",
     "timelineMiniChart": false,
-    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": [] },
-    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "layers": {
+      "rain": false,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": []
+    },
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    },
     "media": {
       "type": "iframe",
       "src": "https://flo.uri.sh/visualisation/26462765/embed",
-      "title": "Flourish chart 26462765"
+      "title": "Flourish chart 26462765",
+      "time": "12h, 24/11"
     }
   },
   {
@@ -163,13 +424,25 @@
     "title": "",
     "body": "Không chỉ gây thiệt hại nặng nề về nhân mạng, đợt lũ lịch sử gây thiệt hại kinh tế hơn 13.000 tỷ đồng tại các tỉnh Nam Trung Bộ.",
     "timelineMiniChart": false,
-    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": [] },
-    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "layers": {
+      "rain": false,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": []
+    },
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    },
     "media": {
       "type": "iframe",
       "src": "https://flo.uri.sh/visualisation/26462354/embed",
-      "title": "Flourish chart 26462354"
+      "title": "Flourish chart 26462354",
+      "time": ""
     }
   },
   {
@@ -177,13 +450,25 @@
     "title": "Ký ức lũ dữ",
     "body": "\"Lúc đó, tôi vẫn nghĩ nhà mình cao. Bao năm qua nước rất ít vào nhà. Khi mình biết là lũ năm nay không như mọi năm thì nước đã quá đầu người\", anh Nguyễn Văn Hần (42 tuổi, thôn Phú Hữu, xã Hòa Thịnh) mất hai người thân đêm 19/11 do trận lũ lịch sử, nói.",
     "timelineMiniChart": false,
-    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": [] },
-    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "layers": {
+      "rain": false,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": []
+    },
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    },
     "media": {
       "type": "image",
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/lu-mie-n-trung-11-1764156024-8511-1764156139.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=y42FMGqPMk8WE5nXvYoMYg",
-      "caption": "Ảnh: Đăng Nguyên"
+      "caption": "Ảnh: Đăng Nguyên",
+      "time": "14h, 25/11"
     }
   },
   {
@@ -191,13 +476,25 @@
     "title": "",
     "body": "\"Chưa khi nào như bây giờ, đi ra bè không thấy một con tôm nào còn sống\", ông Nguyễn Văn Hạnh, 45 tuổi, phường Sông Cầu (Đăk Lăk) bất lực khi không cứu được bè tôm, nguồn thu nhập chính của gia đình 5 người.",
     "timelineMiniChart": false,
-    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": [] },
-    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "layers": {
+      "rain": false,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": []
+    },
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    },
     "media": {
       "type": "image",
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/lu-mie-n-trung-18-1764156025-4289-1764156140.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=6IthmgnZU3j0OY1cgaF2YA",
-      "caption": "Ảnh: Thanh Tùng"
+      "caption": "Ảnh: Thanh Tùng",
+      "time": "15h, 25/11"
     }
   },
   {
@@ -205,13 +502,25 @@
     "title": "",
     "body": "\"Ông bị tai biến, bà mắc bệnh nền nhưng sống chết phải cố leo lên nóc nhà thoát nạn. Nhà cửa giờ không còn gì, mấy bao lúa giống cũng mất hết\", bà Phan Thị Hoà, 75 tuổi ở thôn Mỹ Điền, xã Hòa Thịnh cùng chồng 78 tuổi kể lại.",
     "timelineMiniChart": false,
-    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": [] },
-    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "layers": {
+      "rain": false,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": []
+    },
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    },
     "media": {
       "type": "image",
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/lu-mie-n-trung-16-1764156024-6982-1764156140.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=sxbzJjt61ZVRLcldehK0_A",
-      "caption": "Ảnh: Thanh Tùng"
+      "caption": "Ảnh: Thanh Tùng",
+      "time": "16h, 25/11"
     }
   },
   {
@@ -219,27 +528,51 @@
     "title": "",
     "body": "\"Khi ngồi trên sàn nhà có mái tôn của hàng xóm, ba mẹ con tôi như sống lại\", chị Trần Thị Ngọc Kim En (35 tuổi, thôn Phú Hữu) ôm cảm ơn \"ân nhân\" Trần Tấn Điện (30 tuổi, trung uý công an xã Sơn Thành) - người cứu ba mẹ con chị vào sáng ngày 20/11.",
     "timelineMiniChart": false,
-    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": [] },
-    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "layers": {
+      "rain": false,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": []
+    },
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    },
     "media": {
       "type": "image",
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/26/dak-lak-photo-td5-0358-1764156-2599-7386-1764156139.jpg?w=680&h=0&q=100&dpr=2&fit=crop&s=muSkeISgLTCacTCVDkcAYA",
-      "caption": "Ảnh: Thanh Tùng"
+      "caption": "Ảnh: Thanh Tùng",
+      "time": "17h, 25/11"
     }
   },
-    {
+  {
     "id": 17,
     "title": "",
     "body": "Sau lũ, cả nước hướng về cứu trợ các tỉnh miền Trung. Đến 25/11, Mặt trận Tổ quốc Việt Nam ghi nhận hơn một triệu lượt quyên góp với tổng số tiền hơn 2.000 tỷ đồng cho đồng bào vùng thiên tai.",
     "timelineMiniChart": false,
-    "layers": { "rain": false, "river": false, "stations": false, "lakes": false },
-    "filters": { "rivers": [], "provinces": [] },
-    "opacity": { "rain": 0.75, "hydro": 0.9 },
+    "layers": {
+      "rain": false,
+      "river": false,
+      "stations": false,
+      "lakes": false
+    },
+    "filters": {
+      "rivers": [],
+      "provinces": []
+    },
+    "opacity": {
+      "rain": 0.75,
+      "hydro": 0.9
+    },
     "media": {
       "type": "image",
       "src": "https://i1-vnexpress.vnecdn.net/2025/11/23/cuu-tro-vne-1763877021-1763877375-1763877555-1763877635-1763878344-1763878416.jpg?w=0&h=0&q=100&dpr=1&fit=crop&s=_8V_ZzeV7mFmVmGpP0oHlA",
-      "caption": "Ảnh: Thanh Tùng"
+      "caption": "Ảnh: Thanh Tùng",
+      "time": "18h, 25/11"
     }
   }
 ]
